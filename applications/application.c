@@ -13,35 +13,30 @@
  */
 /*@{*/
 
-#include "../drivers/board.h" 
 #include <rtthread.h>
+#include "../drivers/board.h"
+#include "led.h"
 
 #ifdef RT_USING_FINSH
-#include <shell.h>
 #include <finsh.h>
+#include <shell.h>
 #endif
 
+int rt_application_init() {
 
-void rt_init_thread_entry(void *parameter)
-{
 #ifdef RT_USING_FINSH
-    /* init finsh */
-    finsh_system_init();
+  finsh_system_init();
 #endif
-}
 
-int rt_application_init()
-{
-    rt_thread_t tid;
+#ifndef UNIT_TEST
 
-    tid = rt_thread_create("init",
-                           rt_init_thread_entry, RT_NULL,
-                           2048, RT_THREAD_PRIORITY_MAX / 3, 20);
+#ifdef USE_DRV_GPIO_LED
+  led_thread_init();
+#endif
 
-    if (tid != RT_NULL)
-        rt_thread_startup(tid);
 
-    return 0;
+#endif/*USE_DRV_GPIO_LED*/
+  return 0;
 }
 
 /*@}*/

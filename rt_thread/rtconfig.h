@@ -77,10 +77,10 @@
 /* Device Drivers */
 #define RT_USING_DEVICE_IPC
 #define RT_USING_SERIAL
+#define RT_USING_PIN
 
 //#define RT_USING_DEVICE_IPC
 //#define RT_PIPE_BUFSZ 512
-//#define RT_USING_PIN
 //#define RT_USING_RTC
 
 /* Using WiFi */

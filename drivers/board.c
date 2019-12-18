@@ -60,6 +60,11 @@ void rt_hw_board_init()
 #ifdef USE_DRV_USART
 	rt_hw_usart_init();
 #endif
+
+#ifdef USE_DRV_GPIO_LED
+	rt_hw_led_init();
+#endif
+
 	
 #ifdef RT_USING_COMPONENTS_INIT
     rt_components_board_init();
@@ -68,4 +73,5 @@ void rt_hw_board_init()
 #if defined(RT_USING_CONSOLE) && defined(USE_DRV_USART)
 	rt_console_set_device(CONSOLE_DEVICE);
 #endif
+
 }

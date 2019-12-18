@@ -54,7 +54,13 @@ void rt_hw_board_init(void);
 #define CONSOLE_DEVICE "uart4"
 #endif
 
-extern void rt_hw_usart_init(void);
+#ifdef USE_DRV_USART
+	#include "./drv_usart.h"
+#endif
+
+#ifdef USE_DRV_GPIO_LED
+	#include "./drv_gpio_led.h"
+#endif
 
 /* SD Card init function */
 void rt_hw_msd_init(void);

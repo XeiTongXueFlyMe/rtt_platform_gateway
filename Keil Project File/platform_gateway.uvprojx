@@ -397,6 +397,11 @@
               <FileType>5</FileType>
               <FilePath>..\applications\config.h</FilePath>
             </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\led.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -697,26 +702,6 @@
               <FileType>5</FileType>
               <FilePath>..\device_drivers\include\rtdevice.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>drivers</GroupName>
-          <Files>
-            <File>
-              <FileName>board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\board.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\drv_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>completion.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\completion.c</FilePath>
-            </File>
             <File>
               <FileName>dataqueue.c</FileName>
               <FileType>1</FileType>
@@ -743,6 +728,11 @@
               <FilePath>..\device_drivers\src\waitqueue.c</FilePath>
             </File>
             <File>
+              <FileName>completion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\completion.c</FilePath>
+            </File>
+            <File>
               <FileName>workqueue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\device_drivers\src\workqueue.c</FilePath>
@@ -750,7 +740,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>finsh</GroupName>
+          <GroupName>drivers</GroupName>
+          <Files>
+            <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_gpio_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_gpio_led.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rt_finsh</GroupName>
           <Files>
             <File>
               <FileName>cmd.c</FileName>

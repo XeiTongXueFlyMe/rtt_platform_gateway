@@ -2,9 +2,10 @@
 #define __CONFIG_H
 
 #define DEBUG
+//#define UNIT_TEST
 
 #define USE_DRV_USART
-
+#define USE_DRV_GPIO_LED
 
 /* uart */
 #ifdef USE_DRV_USART

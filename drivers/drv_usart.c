@@ -269,7 +269,6 @@ static void _usart_configuration(void)
   int i;
   struct hw_usart_object *usart_obj;
   
-  
   for (i = 0; i < HW_USART_DMA_NUM; i++)
   {
     usart_obj = HW_USART_OBJ(i);
