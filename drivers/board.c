@@ -73,5 +73,4 @@ void rt_hw_board_init()
 #if defined(RT_USING_CONSOLE) && defined(USE_DRV_USART)
 	rt_console_set_device(CONSOLE_DEVICE);
 #endif
-
 }

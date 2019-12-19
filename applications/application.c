@@ -22,20 +22,22 @@
 #include <shell.h>
 #endif
 
+
 int rt_application_init() {
-
+  
 #ifdef RT_USING_FINSH
-  finsh_system_init();
+    finsh_system_init();
 #endif
-
+	  /* RT-Thread components initialization */
+    rt_components_init();
 #ifndef UNIT_TEST
 
 #ifdef USE_DRV_GPIO_LED
   led_thread_init();
 #endif
 
-
 #endif/*USE_DRV_GPIO_LED*/
+
   return 0;
 }
 

@@ -6,7 +6,6 @@
 /* RT-Thread Project Configuration */
 
 /* RT-Thread Kernel */
-
 #define RT_NAME_MAX 8
 #define RT_ALIGN_SIZE 4
 #define RT_THREAD_PRIORITY_32
@@ -21,7 +20,6 @@
 #define RT_DEBUG_COLOR
 
 /* Inter-Thread communication */
-
 #define RT_USING_SEMAPHORE
 #define RT_USING_MUTEX
 #define RT_USING_EVENT
@@ -29,7 +27,6 @@
 #define RT_USING_MESSAGEQUEUE
 
 /* Memory Management */
-
 #define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
 #define RT_USING_HEAP
@@ -48,7 +45,12 @@
 #define ARCH_ARM_CORTEX_M3
 */
 /* RT-Thread Components */
-
+#define RT_USING_COMPONENTS_INIT
+#define RT_USING_ULOG
+#define ULOG_OUTPUT_LEVEL
+#define ULOG_OUTPUT_TAG
+#define ULOG_OUTPUT_THREAD_NAME
+#define ULOG_BACKEND_USING_CONSOLE
 
 /* C++ features */
 

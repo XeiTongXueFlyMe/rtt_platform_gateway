@@ -80,9 +80,9 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>fromelf --bin !L --output rtthread.bin</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -315,7 +315,7 @@
             <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>1</OneElfS>
+            <OneElfS>0</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\applications;..\stm32_lib\inc;..\stm32_lib\device_support;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\finsh;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include</IncludePath>
+              <IncludePath>..\applications;..\stm32_lib\inc;..\stm32_lib\device_support;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\finsh;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include;..\components\utilities\ulog;..\components\utilities\ulog\syslog</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -401,6 +401,11 @@
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\applications\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>ulog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\ulog.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -791,6 +796,26 @@
               <FileName>symbol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\finsh\symbol.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>components</GroupName>
+          <Files>
+            <File>
+              <FileName>ulog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\utilities\ulog\ulog.c</FilePath>
+            </File>
+            <File>
+              <FileName>syslog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\utilities\ulog\syslog\syslog.c</FilePath>
+            </File>
+            <File>
+              <FileName>console_be.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\utilities\ulog\backend\console_be.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -46,6 +46,7 @@ void ulog_console_backend_output(struct ulog_backend *backend, rt_uint32_t level
 int ulog_console_backend_init(void)
 {
     ulog_init();
+
     console.output = ulog_console_backend_output;
 
     ulog_backend_register(&console, "console", RT_TRUE);
