@@ -57,7 +57,7 @@ void led_thread_entry(void *parameter) {
   rt_uint32_t _recv = RT_EOK;
 
   _d = rt_device_find("led");
-  RT_ASSERT(_d != RT_NULL);
+  RT_ASSERT(RT_NULL != _d);
   _err = rt_device_open(_d, RT_DEVICE_FLAG_STANDALONE);
   RT_ASSERT(RT_EOK != _err);
 
@@ -112,25 +112,25 @@ static rt_err_t _blink(struct led_factory *led_t) {
   }
 
   if (led_t->blink_status & EVENT_SYS_BLINK) {
-    _rt = led_t->device_t->control(led_t->device_t, LED_REVERSE, (void *)LED_SYS);
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_SYS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_RF_BLINK) {
-    _rt = led_t->device_t->control(led_t->device_t, LED_REVERSE, (void *)LED_RF);
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_RF);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_GPRS_BLINK) {
-    _rt = led_t->device_t->control(led_t->device_t, LED_REVERSE, (void *)LED_GPRS);
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_GPRS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_NET_STATUS_BLINK) {
-    _rt = led_t->device_t->control(led_t->device_t, LED_REVERSE, (void *)LED_STATUS);
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_STATUS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -146,7 +146,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_SYS_OPEN) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_SYS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_OPEN, (void *)LED_SYS);
+    _rt = rt_device_control(led_t->device_t, LED_OPEN, (void *)LED_SYS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -154,7 +154,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_SYS_CLOSE) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_SYS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_CLOSE, (void *)LED_SYS);
+    _rt = rt_device_control(led_t->device_t, LED_CLOSE, (void *)LED_SYS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -162,7 +162,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_NET_STATUS_OPEN) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_NET_STATUS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_OPEN, (void *)LED_STATUS);
+    _rt = rt_device_control(led_t->device_t, LED_OPEN, (void *)LED_STATUS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -170,7 +170,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_NET_STATUS_CLOSE) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_NET_STATUS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_CLOSE, (void *)LED_STATUS);
+    _rt = rt_device_control(led_t->device_t, LED_CLOSE, (void *)LED_STATUS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -178,7 +178,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_RF_OPEN) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_RF_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_OPEN, (void *)LED_RF);
+    _rt = rt_device_control(led_t->device_t, LED_OPEN, (void *)LED_RF);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -186,7 +186,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_RF_CLOSE) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_RF_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_CLOSE, (void *)LED_RF);
+    _rt = rt_device_control(led_t->device_t, LED_CLOSE, (void *)LED_RF);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -194,7 +194,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_GPRS_OPEN) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_GPRS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_OPEN, (void *)LED_GPRS);
+    _rt = rt_device_control(led_t->device_t, LED_OPEN, (void *)LED_GPRS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
@@ -202,7 +202,7 @@ static rt_err_t _open_close(struct led_factory *led_t) {
 
   if (led_t->ctl & EVENT_GPRS_CLOSE) {
     led_t->blink_status = (led_t->blink_status & (~EVENT_GPRS_BLINK));
-    _rt = led_t->device_t->control(led_t->device_t, LED_CLOSE, (void *)LED_GPRS);
+    _rt = rt_device_control(led_t->device_t, LED_CLOSE, (void *)LED_GPRS);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }

@@ -1,4 +1,3 @@
-
 #include <rtdevice.h>
 #include <stm32f2xx.h>
 
