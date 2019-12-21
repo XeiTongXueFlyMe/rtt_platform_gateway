@@ -407,6 +407,11 @@
               <FileType>1</FileType>
               <FilePath>..\applications\ulog.c</FilePath>
             </File>
+            <File>
+              <FileName>wdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\wdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -742,6 +747,11 @@
               <FileType>1</FileType>
               <FilePath>..\device_drivers\src\workqueue.c</FilePath>
             </File>
+            <File>
+              <FileName>watchdog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\watchdog\watchdog.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -761,6 +771,11 @@
               <FileName>drv_gpio_led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_gpio_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_xwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_xwdg.c</FilePath>
             </File>
           </Files>
         </Group>

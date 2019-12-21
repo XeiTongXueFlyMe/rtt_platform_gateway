@@ -15,7 +15,7 @@
 #define RT_USING_HOOK
 #define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 256
+#define IDLE_THREAD_STACK_SIZE 512 
 #define RT_DEBUG
 #define RT_DEBUG_COLOR
 
@@ -47,6 +47,7 @@
 /* RT-Thread Components */
 #define RT_USING_COMPONENTS_INIT
 #define RT_USING_ULOG
+#define ULOG_LINE_BUF_SIZE 512
 #define ULOG_OUTPUT_LEVEL
 #define ULOG_OUTPUT_TAG
 #define ULOG_OUTPUT_THREAD_NAME
@@ -80,6 +81,7 @@
 #define RT_USING_DEVICE_IPC
 #define RT_USING_SERIAL
 #define RT_USING_PIN
+#define RT_USING_WDT
 
 //#define RT_USING_DEVICE_IPC
 //#define RT_PIPE_BUFSZ 512

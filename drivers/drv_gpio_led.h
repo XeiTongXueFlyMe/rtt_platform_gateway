@@ -10,8 +10,8 @@
 
 enum led_type {
   LED_STATUS = 0,
-  LED_RF,
   LED_GPRS,
+  LED_RF,
   LED_SYS,
 };
 

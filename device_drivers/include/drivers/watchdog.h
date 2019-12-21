@@ -27,7 +27,6 @@ struct rt_watchdog_device
     const struct rt_watchdog_ops *ops;
 };
 typedef struct rt_watchdog_device rt_watchdog_t;
-
 struct rt_watchdog_ops
 {
     rt_err_t (*init)(rt_watchdog_t *wdt);

@@ -2,11 +2,12 @@
 #define __CONFIG_H
 
 #define DEBUG
-#define UNIT_TEST
+//#define UNIT_TEST
 #define ULOG_OUTPUT_LVL   LOG_LVL_DBG
 
 #define USE_DRV_USART
 #define USE_DRV_GPIO_LED
+#define USE_DRV_XWATCHDOG
 
 /* uart */
 #ifdef USE_DRV_USART

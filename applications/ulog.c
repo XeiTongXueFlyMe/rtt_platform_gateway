@@ -1,5 +1,5 @@
 #define LOG_TAG           "ulog_test"
-//#define LOG_LVL          LOG_LVL_DBG
+#define LOG_LVL          LOG_LVL_DBG
 #include <ulog.h>
 
 void ulog_test(void) {
