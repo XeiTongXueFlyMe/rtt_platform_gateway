@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\applications;..\stm32_lib\inc;..\stm32_lib\device_support;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\finsh;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include;..\components\utilities\ulog;..\components\utilities\ulog\syslog</IncludePath>
+              <IncludePath>..\applications;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include;..\components\utilities\ulog;..\components\utilities\ulog\syslog;..\components\finsh;..\lib\stm32_lib\inc;..\lib\stm32_lib\device_support</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -415,177 +415,122 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>stm32_lib</GroupName>
+          <GroupName>components</GroupName>
           <Files>
             <File>
-              <FileName>misc.c</FileName>
+              <FileName>ulog.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\misc.c</FilePath>
+              <FilePath>..\components\utilities\ulog\ulog.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_adc.c</FileName>
+              <FileName>syslog.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_adc.c</FilePath>
+              <FilePath>..\components\utilities\ulog\syslog\syslog.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_can.c</FileName>
+              <FileName>console_be.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_can.c</FilePath>
+              <FilePath>..\components\utilities\ulog\backend\console_be.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_crc.c</FileName>
+              <FileName>cmd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_crc.c</FilePath>
+              <FilePath>..\components\finsh\cmd.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_cryp.c</FileName>
+              <FileName>msh.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_cryp.c</FilePath>
+              <FilePath>..\components\finsh\msh.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_cryp_aes.c</FileName>
+              <FileName>shell.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_cryp_aes.c</FilePath>
+              <FilePath>..\components\finsh\shell.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_cryp_des.c</FileName>
+              <FileName>symbol.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_cryp_des.c</FilePath>
+              <FilePath>..\components\finsh\symbol.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>device_drivers</GroupName>
+          <Files>
             <File>
-              <FileName>stm32f2xx_cryp_tdes.c</FileName>
+              <FileName>serial.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_cryp_tdes.c</FilePath>
+              <FilePath>..\device_drivers\serial\serial.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f2xx_dac.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_dac.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_dbgmcu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_dbgmcu.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_dcmi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_dcmi.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_exti.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_exti.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_fsmc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_fsmc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_hash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_hash.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_hash_md5.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_hash_md5.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_hash_sha1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_hash_sha1.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_iwdg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_iwdg.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_pwr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_pwr.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_rcc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_rcc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_rng.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_rng.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_rtc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_rtc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_sdio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_sdio.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_syscfg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_syscfg.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_tim.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_wwdg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\stm32f2xx_wwdg.c</FilePath>
-            </File>
-            <File>
-              <FileName>startup_stm32f2xx.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\stm32_lib\src\startup_stm32f2xx.s</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f2xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\stm32_lib\src\system_stm32f2xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f2xx_conf.h</FileName>
+              <FileName>rtdevice.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\stm32_lib\inc\stm32f2xx_conf.h</FilePath>
+              <FilePath>..\device_drivers\include\rtdevice.h</FilePath>
+            </File>
+            <File>
+              <FileName>dataqueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\dataqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>pipe.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\pipe.c</FilePath>
+            </File>
+            <File>
+              <FileName>ringblk_buf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\ringblk_buf.c</FilePath>
+            </File>
+            <File>
+              <FileName>ringbuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\ringbuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>waitqueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\waitqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>completion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\completion.c</FilePath>
+            </File>
+            <File>
+              <FileName>workqueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\src\workqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>watchdog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\watchdog\watchdog.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>drivers</GroupName>
+          <Files>
+            <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_gpio_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_gpio_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_xwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_xwdg.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -700,137 +645,177 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>device_drivers</GroupName>
+          <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>serial.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\device_drivers\serial\serial.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtdevice.h</FileName>
+              <FileName>stm32f2xx.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\device_drivers\include\rtdevice.h</FilePath>
+              <FilePath>..\lib\stm32_lib\device_support\stm32f2xx.h</FilePath>
             </File>
             <File>
-              <FileName>dataqueue.c</FileName>
+              <FileName>misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\dataqueue.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\misc.c</FilePath>
             </File>
             <File>
-              <FileName>pipe.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\pipe.c</FilePath>
+              <FileName>startup_stm32f2xx.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\lib\stm32_lib\src\startup_stm32f2xx.s</FilePath>
             </File>
             <File>
-              <FileName>ringblk_buf.c</FileName>
+              <FileName>stm32f2xx_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\ringblk_buf.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_adc.c</FilePath>
             </File>
             <File>
-              <FileName>ringbuffer.c</FileName>
+              <FileName>stm32f2xx_can.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\ringbuffer.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_can.c</FilePath>
             </File>
             <File>
-              <FileName>waitqueue.c</FileName>
+              <FileName>stm32f2xx_crc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\waitqueue.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_crc.c</FilePath>
             </File>
             <File>
-              <FileName>completion.c</FileName>
+              <FileName>stm32f2xx_cryp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\completion.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_cryp.c</FilePath>
             </File>
             <File>
-              <FileName>workqueue.c</FileName>
+              <FileName>stm32f2xx_cryp_aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\src\workqueue.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_cryp_aes.c</FilePath>
             </File>
             <File>
-              <FileName>watchdog.c</FileName>
+              <FileName>stm32f2xx_cryp_des.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\device_drivers\watchdog\watchdog.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>drivers</GroupName>
-          <Files>
-            <File>
-              <FileName>board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\board.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_cryp_des.c</FilePath>
             </File>
             <File>
-              <FileName>drv_usart.c</FileName>
+              <FileName>stm32f2xx_cryp_tdes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\drivers\drv_usart.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_cryp_tdes.c</FilePath>
             </File>
             <File>
-              <FileName>drv_gpio_led.c</FileName>
+              <FileName>stm32f2xx_dac.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\drivers\drv_gpio_led.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_dac.c</FilePath>
             </File>
             <File>
-              <FileName>drv_xwdg.c</FileName>
+              <FileName>stm32f2xx_dbgmcu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\drivers\drv_xwdg.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>rt_finsh</GroupName>
-          <Files>
-            <File>
-              <FileName>cmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\finsh\cmd.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_dbgmcu.c</FilePath>
             </File>
             <File>
-              <FileName>msh.c</FileName>
+              <FileName>stm32f2xx_dcmi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\finsh\msh.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_dcmi.c</FilePath>
             </File>
             <File>
-              <FileName>msh_cmd.c</FileName>
+              <FileName>stm32f2xx_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\finsh\msh_cmd.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_dma.c</FilePath>
             </File>
             <File>
-              <FileName>msh_file.c</FileName>
+              <FileName>stm32f2xx_exti.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\finsh\msh_file.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_exti.c</FilePath>
             </File>
             <File>
-              <FileName>shell.c</FileName>
+              <FileName>stm32f2xx_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\finsh\shell.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_flash.c</FilePath>
             </File>
             <File>
-              <FileName>symbol.c</FileName>
+              <FileName>stm32f2xx_fsmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\finsh\symbol.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>components</GroupName>
-          <Files>
-            <File>
-              <FileName>ulog.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\components\utilities\ulog\ulog.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_fsmc.c</FilePath>
             </File>
             <File>
-              <FileName>syslog.c</FileName>
+              <FileName>stm32f2xx_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\components\utilities\ulog\syslog\syslog.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>console_be.c</FileName>
+              <FileName>stm32f2xx_hash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\components\utilities\ulog\backend\console_be.c</FilePath>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_hash.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_hash_md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_hash_md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_hash_sha1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_hash_sha1.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_rcc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_rng.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_rng.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_sdio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_syscfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_syscfg.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f2xx_wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\stm32f2xx_wwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f2xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\stm32_lib\src\system_stm32f2xx.c</FilePath>
             </File>
           </Files>
         </Group>
