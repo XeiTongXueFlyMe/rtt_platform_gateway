@@ -14,10 +14,10 @@ struct led_factory {
 typedef struct led_factory led_factroy_t;
 
 static led_factroy_t _led_list[] = {
-    {LED_STATUS, GPIOC, GPIO_Pin_8},
-    {LED_RF, GPIOD, GPIO_Pin_9},
-    {LED_GPRS, GPIOC, GPIO_Pin_6},
-    {LED_SYS, GPIOD, GPIO_Pin_8},
+    {LED_STATUS, GPIOD, GPIO_Pin_8},
+    {LED_GPRS, GPIOD, GPIO_Pin_9},
+    {LED_RF, GPIOC, GPIO_Pin_6},
+    {LED_SYS, GPIOC, GPIO_Pin_8},
 };
 static led_factroy_t *_get_led_param(led_type_t type) {
   for (int _i = 0; _i < (sizeof(_led_list) / sizeof(led_factroy_t)); _i++) {
@@ -36,10 +36,9 @@ static inline void _hw_led_reverse(led_type_t type);
 
 struct rt_device led_device;
 
-rt_err_t  _control(rt_device_t dev, int cmd, void *args){
+rt_err_t _control(rt_device_t dev, int cmd, void *args) {
   rt_err_t _rt = RT_EOK;
-  led_type_t _type;
-  _type = *((led_type_t *)args);
+  led_type_t _type = *(led_type_t *)(args);
 
   switch (cmd) {
     case LED_OPEN:
@@ -54,9 +53,9 @@ rt_err_t  _control(rt_device_t dev, int cmd, void *args){
     default:
       _rt = RT_EINVAL;
       break;
-    }
-	
-    return _rt;
+  }
+
+  return _rt;
 }
 
 void rt_hw_led_init(void) {

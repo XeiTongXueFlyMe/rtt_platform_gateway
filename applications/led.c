@@ -41,7 +41,7 @@ MSH_CMD_EXPORT(led_blink, all led blink 5 count);
 struct led_factory {
   rt_device_t device_t;
   rt_uint32_t ctl;
-  rt_uint8_t blink_status;
+  rt_uint32_t blink_status;
 
   rt_err_t (*open_close)(struct led_factory *led);
   rt_err_t (*blink)(struct led_factory *led);
@@ -67,7 +67,7 @@ void led_thread_entry(void *parameter) {
   struct led_factory _led_item = {
       .device_t = _d,
       .ctl = RT_NULL,
-      .blink_status = RT_NULL,
+      .blink_status = EVENT_SYS_BLINK,  //默认系统指示灯闪烁
       .open_close = _open_close,
       .blink = _blink,
   };
@@ -82,8 +82,8 @@ void led_thread_entry(void *parameter) {
         RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, rt_tick_from_millisecond(500),
         &_recv);
 
-    if (!((_err == RT_EOK) || (_err == (-RT_ETIMEOUT)))){
-      LOG_E("%s line:%d code:%d", __FILE__, __LINE__,_err);
+    if (!((_err == RT_EOK) || (_err == (-RT_ETIMEOUT)))) {
+      LOG_E("%s line:%d code:%d", __FILE__, __LINE__, _err);
       continue;
     }
 
@@ -103,6 +103,7 @@ static rt_err_t _blink(struct led_factory *led_t) {
   LOG_D("call led.blink(.blink_status = %u .ctl = %u) ", led_t->blink_status,
         led_t->ctl);
   rt_err_t _rt = RT_EOK;
+  enum led_type _led_type;
 
   if (led_t->ctl & EVENT_SYS_BLINK) {
     led_t->blink_status = led_t->blink_status | EVENT_SYS_BLINK;
@@ -118,25 +119,29 @@ static rt_err_t _blink(struct led_factory *led_t) {
   }
 
   if (led_t->blink_status & EVENT_SYS_BLINK) {
-    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_SYS);
+    _led_type = LED_SYS;
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)&_led_type);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_RF_BLINK) {
-    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_RF);
+    _led_type = LED_RF;
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)&_led_type);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_GPRS_BLINK) {
-    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_GPRS);
+    _led_type = LED_GPRS;
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)&_led_type);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
   }
   if (led_t->blink_status & EVENT_NET_STATUS_BLINK) {
-    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)LED_STATUS);
+    _led_type = LED_STATUS;
+    _rt = rt_device_control(led_t->device_t, LED_REVERSE, (void *)&_led_type);
     if (RT_EOK != _rt) {
       goto RT_ERR;
     }
