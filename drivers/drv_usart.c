@@ -240,6 +240,9 @@ static void _gpio_configuration(void)
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Pin = UART3_GPIO_TX_PIN|UART3_GPIO_RX_PIN;
     GPIO_Init(UART3_GPIO_TX, &GPIO_InitStructure);
+    
+    GPIO_InitStructure.GPIO_Pin = UART3_GPIO_RX_PIN;
+    GPIO_Init(UART3_GPIO_RX, &GPIO_InitStructure); 
 #endif /* HW_USART_USING_UART3 */
     
 #ifdef HW_USART_USING_UART4

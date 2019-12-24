@@ -15,7 +15,7 @@
 #define RT_USING_HOOK
 #define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
-#define IDLE_THREAD_STACK_SIZE 512 
+#define IDLE_THREAD_STACK_SIZE 512
 #define RT_DEBUG
 #define RT_DEBUG_COLOR
 
@@ -37,7 +37,6 @@
 #define RT_CONSOLEBUF_SIZE 128
 #define RT_CONSOLE_DEVICE_NAME "uart1"
 
-
 /*
 #define RT_VER_NUM 0x40001
 #define ARCH_ARM
@@ -55,7 +54,6 @@
 
 /* C++ features */
 
-
 /* Command shell */
 
 #define RT_USING_FINSH
@@ -72,7 +70,6 @@
 //#define FINSH_ARG_MAX 10
 #define FINSH_USING_MSH_ONLY
 
-
 /* Device virtual file system */
 
 /* elm-chan's FatFs, Generic FAT Filesystem Module */
@@ -82,6 +79,7 @@
 #define RT_USING_SERIAL
 #define RT_USING_PIN
 #define RT_USING_WDT
+#define RT_USING_NVM
 
 //#define RT_USING_DEVICE_IPC
 //#define RT_PIPE_BUFSZ 512
@@ -89,9 +87,7 @@
 
 /* Using WiFi */
 
-
 /* Using USB */
-
 
 /* POSIX layer and C standard library */
 
@@ -101,61 +97,43 @@
 
 /* Socket abstraction layer */
 
-
 /* light weight TCP/IP stack */
-
 
 /* Modbus master and slave stack */
 
-
 /* AT commands */
-
 
 /* VBUS(Virtual Software BUS) */
 
-
 /* Utilities */
 
-
 /* ARM CMSIS */
-
 
 /* RT-Thread online packages */
 
 /* IoT - internet of things */
 
-
 /* Wi-Fi */
 
 /* Marvell WiFi */
 
-
 /* Wiced WiFi */
-
 
 /* IoT Cloud */
 
-
 /* security packages */
-
 
 /* language packages */
 
-
 /* multimedia packages */
-
 
 /* tools packages */
 
-
 /* system packages */
-
 
 /* peripheral libraries and drivers */
 
-
 /* miscellaneous packages */
-
 
 /* samples: kernel and components samples */
 

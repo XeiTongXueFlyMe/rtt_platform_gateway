@@ -29,10 +29,12 @@ void  SysTick_Configuration(void)
 
 	RCC_GetClocksFreq(&rcc_clocks);
 
-	//SysTick_Config(rcc_clocks.HCLK_Frequency / RT_TICK_PER_SECOND);
-	
 	SysTick_Config(rcc_clocks.SYSCLK_Frequency / RT_TICK_PER_SECOND);
-	//SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
+	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);	
+
+	/* 配置FLASH周期，预取指模式 */
+	FLASH_PrefetchBufferCmd(ENABLE);		
+	FLASH_SetLatency(FLASH_Latency_2);					
 }
 
 

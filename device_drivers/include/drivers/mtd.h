@@ -78,7 +78,7 @@ struct mtd_ops
 {
     int(*erase)(rt_mtd_t *mtd, loff_t addr, size_t len);    /* return 0 if success */
     int(*read) (rt_mtd_t *mtd, loff_t from, struct mtd_io_desc *ops); /* return 0 if success */
-    int(*write) (rt_mtd_t *mtd, loff_t to, struct mtd_io_desc *ops);  /* return 0 if success */
+    int(*write) (rt_mtd_t *mtd, lof0f_t to, struct mtd_io_desc *ops);  /* return 0 if success */
     int(*isbad) (rt_mtd_t *mtd, uint32_t block);    /* return 1 if bad, 0 not bad */
     int(*markbad) (rt_mtd_t *mtd, uint32_t block);  /* return 0 if success */
 };

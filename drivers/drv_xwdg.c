@@ -1,7 +1,7 @@
-#define LOG_TAG "drv_xwdg"
-#define LOG_LVL LOG_LVL_DBG
 #include <rtdevice.h>
 #include <stm32f2xx.h>
+#define LOG_TAG "drv_xwdg"
+#define LOG_LVL LOG_LVL_INFO
 #include <ulog.h>
 
 #ifdef USE_DRV_XWATCHDOG

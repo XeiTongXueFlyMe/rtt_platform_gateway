@@ -79,6 +79,10 @@ extern "C" {
 #include "drivers/watchdog.h"
 #endif
 
+#ifdef RT_USING_NVM
+#include "drivers/nvm.h"
+#endif
+
 #ifdef RT_USING_PIN
 #include "drivers/pin.h"
 #endif

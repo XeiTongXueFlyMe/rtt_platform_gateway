@@ -11,6 +11,7 @@
 
 #include <drivers/watchdog.h>
 
+#ifdef RT_USING_WDT
 /* RT-Thread Device Interface */
 
 /*
@@ -108,3 +109,5 @@ rt_err_t rt_hw_watchdog_register(struct rt_watchdog_device *wtd,
     /* register a character device */
     return rt_device_register(device, name, flag);
 }
+
+#endif

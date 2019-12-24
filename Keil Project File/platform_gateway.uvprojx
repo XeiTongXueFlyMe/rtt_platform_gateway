@@ -423,11 +423,6 @@
               <FilePath>..\components\utilities\ulog\ulog.c</FilePath>
             </File>
             <File>
-              <FileName>syslog.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\components\utilities\ulog\syslog\syslog.c</FilePath>
-            </File>
-            <File>
               <FileName>console_be.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\components\utilities\ulog\backend\console_be.c</FilePath>
@@ -507,6 +502,11 @@
               <FileType>1</FileType>
               <FilePath>..\device_drivers\watchdog\watchdog.c</FilePath>
             </File>
+            <File>
+              <FileName>nvm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\nvm\nvm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -531,6 +531,11 @@
               <FileName>drv_xwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_xwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_flash.c</FilePath>
             </File>
           </Files>
         </Group>

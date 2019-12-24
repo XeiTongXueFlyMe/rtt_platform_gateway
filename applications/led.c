@@ -4,7 +4,7 @@
 #include "rtthread.h"
 
 #define LOG_TAG "app.led"
-#define LOG_LVL LOG_LVL_DBG
+#define LOG_LVL LOG_LVL_INFO
 #include <ulog.h>
 
 #if defined(UNIT_TEST) && defined(USE_DRV_GPIO_LED)
@@ -56,10 +56,13 @@ void led_thread_entry(void *parameter) {
   rt_device_t _d = RT_NULL;
   rt_uint32_t _recv = RT_EOK;
 
+  _err = rt_event_init(&_event, "led_thread_event", RT_IPC_FLAG_FIFO);
+  RT_ASSERT(RT_EOK == _err);
+
   _d = rt_device_find("led");
   RT_ASSERT(RT_NULL != _d);
   _err = rt_device_open(_d, RT_DEVICE_FLAG_STANDALONE);
-  RT_ASSERT(RT_EOK != _err);
+  RT_ASSERT(RT_EOK == _err);
 
   struct led_factory _led_item = {
       .device_t = _d,
@@ -70,25 +73,28 @@ void led_thread_entry(void *parameter) {
   };
 
   while (1) {
-    if (rt_event_recv(
-            &_event,
-            (EVENT_NET_STATUS_OPEN | EVENT_GPRS_OPEN | EVENT_RF_OPEN |
-             EVENT_SYS_OPEN | EVENT_NET_STATUS_CLOSE | EVENT_GPRS_CLOSE |
-             EVENT_RF_CLOSE | EVENT_SYS_CLOSE | EVENT_NET_STATUS_BLINK |
-             EVENT_GPRS_BLINK | EVENT_RF_BLINK | EVENT_SYS_BLINK),
-            RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-            rt_tick_from_millisecond(500), &_recv) == RT_EOK) {
-    } else {
-      LOG_E(__FILE__, __LINE__);
+    _err = rt_event_recv(
+        &_event,
+        (EVENT_NET_STATUS_OPEN | EVENT_GPRS_OPEN | EVENT_RF_OPEN |
+         EVENT_SYS_OPEN | EVENT_NET_STATUS_CLOSE | EVENT_GPRS_CLOSE |
+         EVENT_RF_CLOSE | EVENT_SYS_CLOSE | EVENT_NET_STATUS_BLINK |
+         EVENT_GPRS_BLINK | EVENT_RF_BLINK | EVENT_SYS_BLINK),
+        RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, rt_tick_from_millisecond(500),
+        &_recv);
+
+    if (!((_err == RT_EOK) || (_err == (-RT_ETIMEOUT)))){
+      LOG_E("%s line:%d code:%d", __FILE__, __LINE__,_err);
+      continue;
     }
+
     _led_item.ctl = _recv;
     _err = _led_item.open_close(&_led_item);
     if (RT_EOK != _err) {
-      LOG_E(__FILE__, __LINE__);
+      LOG_E("%s line:%d", __FILE__, __LINE__);
     }
     _err = _led_item.blink(&_led_item);
     if (RT_EOK != _err) {
-      LOG_E(__FILE__, __LINE__);
+      LOG_E("%s line:%d", __FILE__, __LINE__);
     }
   }
 }
@@ -212,13 +218,12 @@ RT_ERR:
   return _rt;
 }
 
+static rt_thread_t _led_tid = RT_NULL;
 void led_thread_init(void) {
-  rt_thread_t _tid = RT_NULL;
-
-  _tid = rt_thread_create("app_led", led_thread_entry, RT_NULL, 256,
-                          RT_THREAD_PRIORITY_MAX - 1, 20);
-  RT_ASSERT(_tid != RT_NULL);
-  rt_thread_startup(_tid);
+  _led_tid = rt_thread_create("app_led", led_thread_entry, RT_NULL, 2048,
+                              RT_THREAD_PRIORITY_MAX - 1, 20);
+  RT_ASSERT(_led_tid != RT_NULL);
+  rt_thread_startup(_led_tid);
 }
 
 #endif
