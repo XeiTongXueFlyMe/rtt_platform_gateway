@@ -18,6 +18,4 @@
 #define EVENT_SYS_CLOSE (1 << 10)
 #define EVENT_SYS_BLINK (1 << 11)
 
-void led_thread_init(void);
-
 #endif

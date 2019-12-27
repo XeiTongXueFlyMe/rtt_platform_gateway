@@ -28,11 +28,15 @@ void xwdg_thread_entry(void *parameter) {
   }
 }
 
-void wdg_thread_init(void) {
+int wdg_thread_init(void) {
   _xwdg_tid = rt_thread_create("app_wdg", xwdg_thread_entry, RT_NULL, 1024,
                                RT_THREAD_PRIORITY_MAX - 1, 20);
   RT_ASSERT(_xwdg_tid != RT_NULL);
   rt_thread_startup(_xwdg_tid);
+
+  return 0;
 }
+
+INIT_APP_EXPORT(wdg_thread_init);
 
 #endif

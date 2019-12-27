@@ -13,9 +13,9 @@ struct rt_nvm_ops {
   rt_err_t (*init)(rt_nvm_device_t *nvm);
   rt_err_t (*control)(rt_nvm_device_t *nvm, int cmd, void *arg);
   rt_size_t (*nvm_read)(rt_nvm_device_t *nvm, rt_off_t pos, rt_uint8_t *buf,
-                        size_t size);
+                        rt_size_t size);
   rt_size_t (*nvm_write)(rt_nvm_device_t *nvm, rt_off_t pos,
-                         const rt_uint8_t *buf, size_t size);
+                         const rt_uint8_t *buf, rt_size_t size);
 };
 
 struct rt_nvm_device {

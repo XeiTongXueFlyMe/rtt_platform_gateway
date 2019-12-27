@@ -224,11 +224,15 @@ RT_ERR:
 }
 
 static rt_thread_t _led_tid = RT_NULL;
-void led_thread_init(void) {
+int led_thread_init(void) {
   _led_tid = rt_thread_create("app_led", led_thread_entry, RT_NULL, 2048,
                               RT_THREAD_PRIORITY_MAX - 1, 20);
   RT_ASSERT(_led_tid != RT_NULL);
   rt_thread_startup(_led_tid);
+
+  return 0;
 }
+
+INIT_APP_EXPORT(led_thread_init);
 
 #endif

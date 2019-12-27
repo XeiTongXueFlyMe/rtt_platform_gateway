@@ -17,6 +17,4 @@ enum led_type {
 
 typedef enum led_type led_type_t;
 
-void rt_hw_led_init(void);
-
 #endif

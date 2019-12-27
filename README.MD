@@ -25,3 +25,16 @@ LOG_LVL_ERROR|错误|LOG_E(...)|发生严重的、不可修复的错误时输出
 LOG_LVL_WARNING|警告|LOG_W(...)|出现一些不太重要的、具有可修复性的错误时，会输出这些警告日志
 LOG_LVL_INFO|信息|LOG_I(...)|给本模块上层使用人员查看的重要提示信息日志，例如：初始化成功，当前工作状等。该级别日志5一般在量产时依旧保留
 LOG_LVL_DBG|调试|LOG_D(...)|给本模块开发人员查看的调试日志，该级别日志一般在量产时关闭
+
+# RTT宏的运用
+> RT-Thread 提供了另一种低耦合高内聚的初始化方式，它不需要我们再 手动添加调用初始化函数，它能在系统运行前自动完成各模块的初始化。
+> https://www.rt-thread.org/document/api
+
+|初始化顺序|接口|描述|
+|-|-|-|
+|1|INIT_BOARD_EXPORT(fn)|硬件的初始化，此时调度器还未启动|
+|2|INIT_PREV_EXPORT(fn)|主要是用于纯软件的初始化、没有太多依赖的函数|
+|3|INIT_DEVICE_EXPORT(fn)|外设驱动初始化相关，比如网卡设备|
+|4|INIT_COMPONENT_EXPORT(fn)|组件初始化，比如文件系统或者LWIP|
+|5|INIT_ENV_EXPORT(fn)|系统环境初始化，比如挂载文件系统|
+|6|INIT_APP_EXPORT(fn)|应用初始化，比如GUI应用|

@@ -58,7 +58,7 @@ rt_err_t _control(rt_device_t dev, int cmd, void *args) {
   return _rt;
 }
 
-void rt_hw_led_init(void) {
+int rt_hw_led_init(void) {
   _hw_rcc_config();
   _hw_gpio_cofig();
 
@@ -75,7 +75,10 @@ void rt_hw_led_init(void) {
 
   rt_device_register(&led_device, "led",
                      RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_STANDALONE);
+  return 0;
 }
+
+INIT_BOARD_EXPORT(rt_hw_led_init);
 
 static void _hw_rcc_config(void) {
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
