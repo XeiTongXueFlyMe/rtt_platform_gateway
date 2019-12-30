@@ -6,6 +6,7 @@
 #define ULOG_OUTPUT_LVL   LOG_LVL_DBG
 
 #define USE_DRV_USART
+#define USE_DRV_SPI
 #define USE_DRV_GPIO_LED
 #define USE_DRV_XWATCHDOG
 #define USE_DRV_FLASH

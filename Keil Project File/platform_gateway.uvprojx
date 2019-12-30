@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\applications;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include;..\components\utilities\ulog;..\components\utilities\ulog\syslog;..\components\finsh;..\lib\stm32_lib\inc;..\lib\stm32_lib\device_support</IncludePath>
+              <IncludePath>..\applications;..\rt_thread\include;..\rt_thread\include\libc;..\rt_thread;..\rt_thread\libcpu\arm\cortex-m3;..\device_drivers\include\drivers;..\device_drivers\include;..\components\utilities\ulog;..\components\utilities\ulog\syslog;..\components\finsh;..\lib\stm32_lib\inc;..\lib\stm32_lib\device_support;..\lib\libc\compilers\armlibc;..\lib\libc\compilers\armlibc\sys</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -512,6 +512,26 @@
               <FileType>1</FileType>
               <FilePath>..\device_drivers\nvm\nvm.c</FilePath>
             </File>
+            <File>
+              <FileName>spi_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\spi\spi_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi_dev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\spi\spi_dev.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\rtc\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>soft_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\rtc\soft_rtc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -541,6 +561,11 @@
               <FileName>drv_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>dvr_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\dvr_spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -655,7 +680,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib</GroupName>
+          <GroupName>libstm32</GroupName>
           <Files>
             <File>
               <FileName>stm32f2xx.h</FileName>
@@ -826,6 +851,31 @@
               <FileName>system_stm32f2xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lib\stm32_lib\src\system_stm32f2xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libc</GroupName>
+          <Files>
+            <File>
+              <FileName>gmtime_r.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\libc\compilers\common\gmtime_r.c</FilePath>
+            </File>
+            <File>
+              <FileName>mem_std.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\libc\compilers\armlibc\mem_std.c</FilePath>
+            </File>
+            <File>
+              <FileName>stubs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\libc\compilers\armlibc\stubs.c</FilePath>
+            </File>
+            <File>
+              <FileName>time.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\libc\compilers\armlibc\time.c</FilePath>
             </File>
           </Files>
         </Group>

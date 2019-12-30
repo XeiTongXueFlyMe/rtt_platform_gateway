@@ -18,7 +18,6 @@
 #define IDLE_THREAD_STACK_SIZE 512
 #define RT_DEBUG
 
-
 /* Inter-Thread communication */
 #define RT_USING_SEMAPHORE
 #define RT_USING_MUTEX
@@ -64,7 +63,7 @@
 #define FINSH_USING_SYMTAB
 #define FINSH_USING_DESCRIPTION
 #define FINSH_THREAD_PRIORITY 20
-#define FINSH_THREAD_STACK_SIZE (4 * 1024)
+#define FINSH_THREAD_STACK_SIZE (8 * 1024)
 #define FINSH_CMD_SIZE 80
 #define FINSH_USING_MSH
 #define FINSH_USING_MSH_DEFAULT
@@ -81,6 +80,9 @@
 #define RT_USING_PIN
 #define RT_USING_WDT
 #define RT_USING_NVM
+#define RT_USING_SPI
+#define RT_USING_RTC
+#define RT_USING_SOFT_RTC
 
 //#define RT_USING_DEVICE_IPC
 //#define RT_PIPE_BUFSZ 512

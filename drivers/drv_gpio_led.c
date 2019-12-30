@@ -59,6 +59,7 @@ rt_err_t _control(rt_device_t dev, int cmd, void *args) {
 }
 
 int rt_hw_led_init(void) {
+  rt_err_t _rt = RT_EOK;
   _hw_rcc_config();
   _hw_gpio_cofig();
 
@@ -73,8 +74,10 @@ int rt_hw_led_init(void) {
   led_device.control = _control;
   led_device.user_data = RT_NULL;
 
-  rt_device_register(&led_device, "led",
+  _rt = rt_device_register(&led_device, "led",
                      RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_STANDALONE);
+  RT_ASSERT(RT_EOK == _rt);
+
   return 0;
 }
 

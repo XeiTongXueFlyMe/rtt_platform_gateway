@@ -52,19 +52,14 @@ static struct rt_watchdog_ops wdg_ops = {
 };
 
 int xwdg_init(void) {
-  LOG_I("register xwatchdog drivers");
   rt_err_t _rt = RT_EOK;
 
   xwatchdog.ops = &wdg_ops;
   _rt = rt_hw_watchdog_register(&xwatchdog, "xwdg", RT_DEVICE_FLAG_STANDALONE,
                                 RT_NULL);
-  if (RT_EOK != _rt) goto REG_XWDG_FAIL;
+  RT_ASSERT(RT_EOK == _rt);
 
-  return _rt;
-
-REG_XWDG_FAIL:
-  LOG_E("xwatchdog register fail");
-  return _rt;
+  return 0;
 }
 
 INIT_BOARD_EXPORT(xwdg_init);

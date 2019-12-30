@@ -231,13 +231,7 @@ int flash_init(void) {
 
   _rt = rt_hw_nvm_register(&nvm_item, FLASH_DEVICE_NAME, RT_DEVICE_FLAG_RDWR,
                            RT_NULL);
-  if (RT_EOK != _rt) goto REG_NVM_FAIL;
-
-  return _rt;
-
-REG_NVM_FAIL:
-  rt_kprintf("\n\rErr: rt_hw_nvm_register() return %d file:%s, line:%d", _rt,
-             __FILE__, __LINE__);
+  RT_ASSERT(RT_EOK == _rt);
   return _rt;
 }
 
