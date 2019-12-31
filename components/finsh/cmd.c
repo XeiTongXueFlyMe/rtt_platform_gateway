@@ -42,14 +42,14 @@ long hello(void)
 FINSH_FUNCTION_EXPORT(hello, say hello world);
 
 extern void rt_show_version(void);
-long version(void)
+long uname(void)
 {
     rt_show_version();
 
     return 0;
 }
-FINSH_FUNCTION_EXPORT(version, show RT-Thread version information);
-MSH_CMD_EXPORT(version, show RT-Thread version information);
+FINSH_FUNCTION_EXPORT(uname, show RT-Thread version information);
+MSH_CMD_EXPORT(uname, show RT-Thread version information);
 
 static int object_name_maxlen(const char *type_name, struct rt_list_node *list)
 {
