@@ -11,6 +11,7 @@
  * 2012-05-18     bernard      Changed SPI message to message list.
  *                             Added take/release SPI device/bus interface.
  * 2012-09-28     aozima       fixed rt_spi_release_bus assert error.
+ * 2019-12-31     xieming      perfect return error.
  */
 
 #include <drivers/spi.h>
@@ -96,9 +97,17 @@ rt_err_t rt_spi_configure(struct rt_spi_device        *device,
             /* release lock */
             rt_mutex_release(&(device->bus->lock));
         }
+        else
+        {
+            rt_set_errno(-RT_EIO);
+            goto __exit;
+        }
+
     }
 
     return RT_EOK;
+__exit:
+    return RT_EIO;
 }
 
 rt_err_t rt_spi_send_then_send(struct rt_spi_device *device,
@@ -278,7 +287,7 @@ rt_size_t rt_spi_transfer(struct rt_spi_device *device,
             {
                 /* configure SPI bus failed */
                 rt_set_errno(-RT_EIO);
-                result = 0;
+                result = RT_EIO;
                 goto __exit;
             }
         }
