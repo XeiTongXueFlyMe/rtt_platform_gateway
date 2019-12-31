@@ -47,6 +47,7 @@
 /* RT-Thread Components */
 #define RT_USING_COMPONENTS_INIT
 #define RT_USING_ULOG
+#define ULOG_USING_COLOR
 #define ULOG_LINE_BUF_SIZE 512
 #define ULOG_OUTPUT_LEVEL
 #define ULOG_OUTPUT_TAG
