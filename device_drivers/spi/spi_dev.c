@@ -10,6 +10,10 @@
 #include <rtthread.h>
 #include <drivers/spi.h>
 
+#define LOG_TAG "spi_dev"
+#define LOG_LVL LOG_LVL_DBG
+#include <ulog.h>
+
 #ifdef RT_USING_SPI
 
 /* SPI bus device interface, compatible with RT-Thread 0.3.x/1.0.x */
@@ -45,6 +49,7 @@ static rt_err_t _spi_bus_device_control(rt_device_t dev,
                                         int         cmd,
                                         void       *args)
 {
+    LOG_W("spi_bus_device_control(.cmd = %d) no carry out",cmd);
     /* TODO: add control command handle */
     switch (cmd)
     {
@@ -127,6 +132,7 @@ static rt_err_t _spidev_device_control(rt_device_t dev,
                                        int         cmd,
                                        void       *args)
 {
+    LOG_W("spi_device_control(.cmd = %d) no carry out",cmd);
     switch (cmd)
     {
     case 0: /* set device */

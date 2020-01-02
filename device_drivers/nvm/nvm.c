@@ -110,7 +110,7 @@ rt_err_t rt_hw_nvm_register(struct rt_nvm_device *nvm_t, const char *name,
   RT_ASSERT(RT_NULL != nvm_t);
 
   _device_t = &nvm_t->parent;
-  _device_t->type = RT_Device_Class_Miscellaneous;
+  _device_t->type = RT_Device_Class_MTD;
   _device_t->rx_indicate = RT_NULL;
   _device_t->tx_complete = RT_NULL;
 #ifdef RT_USING_DEVICE_OPS

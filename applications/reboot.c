@@ -4,9 +4,10 @@
 #include "rtthread.h"
 
 int reboot(void) {
-	__set_FAULTMASK(1);
-	NVIC_SystemReset();
-	for(;;);
+  __set_FAULTMASK(1);
+  NVIC_SystemReset();
+  for (;;)
+    ;
 }
 
 MSH_CMD_EXPORT(reboot, reset sys);

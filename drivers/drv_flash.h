@@ -4,6 +4,6 @@
 #include <rtdevice.h>
 #include <stm32f2xx.h>
 
-#define FLASH_DEVICE_NAME "chip_flash"
+#define FLASH_DEVICE_NAME "stmflash"
 
 #endif 

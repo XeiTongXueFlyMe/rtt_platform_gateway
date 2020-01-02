@@ -15,7 +15,7 @@
 #define HW_NVM_BACKUPS_SECTOR FLASH_Sector_11
 #define HW_NVM_SIZE (0x00020000)
 
-#define LOG_TAG "drv_st_flash"
+#define LOG_TAG "drv_stflash"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 

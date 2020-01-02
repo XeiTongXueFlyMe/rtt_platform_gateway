@@ -412,6 +412,11 @@
               <FileType>1</FileType>
               <FilePath>..\applications\wdg.c</FilePath>
             </File>
+            <File>
+              <FileName>reboot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\reboot.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -523,6 +528,11 @@
               <FilePath>..\device_drivers\spi\spi_dev.c</FilePath>
             </File>
             <File>
+              <FileName>spi_flash_w25qxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\spi\spi_flash_w25qxx.c</FilePath>
+            </File>
+            <File>
               <FileName>rtc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\device_drivers\rtc\rtc.c</FilePath>
@@ -563,9 +573,14 @@
               <FilePath>..\drivers\drv_flash.c</FilePath>
             </File>
             <File>
-              <FileName>dvr_spi.c</FileName>
+              <FileName>drv_w25qxx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\drivers\dvr_spi.c</FilePath>
+              <FilePath>..\drivers\drv_w25qxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>dvr_spi3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\dvr_spi3.c</FilePath>
             </File>
           </Files>
         </Group>

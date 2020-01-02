@@ -8,7 +8,8 @@
 #include <shell.h>
 #endif
 
-int rt_application_init() {
+/* the system main thread */
+void main_thread_entry(void *parameter) {
 #ifdef RT_USING_FINSH
   finsh_system_init();
 #endif
@@ -19,7 +20,17 @@ int rt_application_init() {
   extern int ulog_console_backend_init(void);
   ulog_console_backend_init();
 #endif /*UNIT_TEST*/
+}
 
+int rt_application_init() {
+  rt_thread_t _tid;
+
+  _tid =
+      rt_thread_create("main", main_thread_entry, RT_NULL,
+                       2048, 1, 20);
+  RT_ASSERT(_tid != RT_NULL);
+
+  rt_thread_startup(_tid);
   return 0;
 }
 

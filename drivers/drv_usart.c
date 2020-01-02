@@ -252,7 +252,7 @@ static void _gpio_configuration(void) {
 #ifdef HW_USART_USING_UART4
   /* Configure USART Rx/tx PIN */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure..GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_InitStructure.GPIO_Pin = UART4_GPIO_TX_PIN | UART4_GPIO_RX_PIN;
   GPIO_Init(UART4_GPIO_TX, &GPIO_InitStructure);

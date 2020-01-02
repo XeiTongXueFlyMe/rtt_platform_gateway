@@ -69,6 +69,7 @@ rt_err_t rt_spi_bus_attach_device(struct rt_spi_device *device,
     }
 
     /* not found the host bus */
+    rt_kprintf("not found the %s host bus",bus_name);
     return -RT_ERROR;
 }
 
@@ -91,7 +92,7 @@ rt_err_t rt_spi_configure(struct rt_spi_device        *device,
         {
             if (device->bus->owner == device)
             {
-                device->bus->ops->configure(device, &device->config);
+                result = device->bus->ops->configure(device, &device->config);
             }
 
             /* release lock */
@@ -102,10 +103,9 @@ rt_err_t rt_spi_configure(struct rt_spi_device        *device,
             rt_set_errno(-RT_EIO);
             goto __exit;
         }
-
     }
 
-    return RT_EOK;
+    return result;
 __exit:
     return RT_EIO;
 }

@@ -19,6 +19,7 @@ static led_factroy_t _led_list[] = {
     {LED_RF, GPIOC, GPIO_Pin_6},
     {LED_SYS, GPIOC, GPIO_Pin_8},
 };
+
 static led_factroy_t *_get_led_param(led_type_t type) {
   for (int _i = 0; _i < (sizeof(_led_list) / sizeof(led_factroy_t)); _i++) {
     if (_led_list[_i].type == type) {
@@ -75,7 +76,7 @@ int rt_hw_led_init(void) {
   led_device.user_data = RT_NULL;
 
   _rt = rt_device_register(&led_device, "led",
-                     RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_STANDALONE);
+                           RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_STANDALONE);
   RT_ASSERT(RT_EOK == _rt);
 
   return 0;
