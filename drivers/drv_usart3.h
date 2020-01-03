@@ -4,6 +4,6 @@
 #include <rthw.h>
 #include <rtthread.h>
 
-int rt_hw_usart_init(void);
+int rt_hw_usart3_init(void);
 
 #endif

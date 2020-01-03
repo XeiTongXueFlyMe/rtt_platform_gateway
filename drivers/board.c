@@ -54,7 +54,7 @@ void rt_hw_board_init() {
   SysTick_Configuration();
 
 #ifdef USE_DRV_USART
-  rt_hw_usart_init();
+  rt_hw_usart3_init();
 #endif
 
 #if defined(RT_USING_CONSOLE) && defined(USE_DRV_USART)

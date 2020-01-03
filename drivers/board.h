@@ -55,7 +55,7 @@ void rt_hw_board_init(void);
 #endif
 
 #ifdef USE_DRV_USART
-	#include "./drv_usart.h"
+	#include "./drv_usart3.h"
 #endif
 
 #ifdef USE_DRV_GPIO_LED

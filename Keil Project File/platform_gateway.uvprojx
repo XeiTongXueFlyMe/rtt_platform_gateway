@@ -553,11 +553,6 @@
               <FilePath>..\drivers\board.c</FilePath>
             </File>
             <File>
-              <FileName>drv_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\drivers\drv_usart.c</FilePath>
-            </File>
-            <File>
               <FileName>drv_gpio_led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_gpio_led.c</FilePath>
@@ -586,6 +581,11 @@
               <FileName>drv_gpio_sw.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_gpio_sw.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_usart3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_usart3.c</FilePath>
             </File>
           </Files>
         </Group>
