@@ -413,9 +413,9 @@
               <FilePath>..\applications\wdg.c</FilePath>
             </File>
             <File>
-              <FileName>reboot.c</FileName>
+              <FileName>common_cmd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\reboot.c</FilePath>
+              <FilePath>..\applications\common_cmd.c</FilePath>
             </File>
           </Files>
         </Group>
