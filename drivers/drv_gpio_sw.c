@@ -132,7 +132,7 @@ int sw_utest(void) {
 
   _rt = rt_device_control(_dev_t, CMD_READ_K0_STATUS, &_status);
   RT_ASSERT(RT_EOK == _rt);
-  rt_kprintf("\nCFG_KEY_0 = %d", _status);
+  rt_kprintf("CFG_KEY_0 = %d", _status);
   _rt = rt_device_control(_dev_t, CMD_READ_K1_STATUS, &_status);
   RT_ASSERT(RT_EOK == _rt);
   rt_kprintf("\nCFG_KEY_1 = %d", _status);
