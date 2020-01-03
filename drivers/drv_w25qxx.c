@@ -69,7 +69,7 @@ int w25q_utest(void) {
     }
     rt_kprintf("\rw25qxx check sector: %d/1024", _cnt);
   }
-  rt_kprintf("\r                                                           ");
+  rt_kprintf("\r                                                           \r");
 
 _exit:
   _rt = rt_device_close(_dev);
