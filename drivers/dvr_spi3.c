@@ -2,7 +2,7 @@
 #include "rtdevice.h"
 
 #define LOG_TAG "drv_spi"
-#define LOG_LVL LOG_LVL_DBG
+#define LOG_LVL LOG_LVL_INFO
 #include <ulog.h>
 
 #ifdef USE_DRV_SPI
@@ -132,7 +132,7 @@ rt_uint32_t stm_spi_xfer(struct rt_spi_device *device,
   RT_ASSERT(device->parent.user_data != RT_NULL);
   RT_ASSERT(message != RT_NULL);
 
-  LOG_D("SPI3 sendbuf: %X, recvbuf: %X, length: %d",
+  LOG_D("SPI3 xfer: %X, recvbuf: %X, length: %d",
         (uint32_t)message->send_buf, (uint32_t)message->recv_buf,
         message->length);
 
