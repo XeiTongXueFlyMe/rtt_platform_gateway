@@ -14,12 +14,7 @@ void main_thread_entry(void *parameter) {
   finsh_system_init();
 #endif
 
-#ifndef UNIT_TEST
   rt_components_init();
-#else
-  extern int ulog_console_backend_init(void);
-  ulog_console_backend_init();
-#endif /*UNIT_TEST*/
 }
 
 int rt_application_init() {

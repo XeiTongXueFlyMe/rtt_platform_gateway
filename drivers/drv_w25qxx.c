@@ -27,4 +27,9 @@ int w25qxxx_device_init(void) {
 
 INIT_DEVICE_EXPORT(w25qxxx_device_init);
 
+
+#ifdef UNIT_TEST
+
+#endif
+
 #endif
