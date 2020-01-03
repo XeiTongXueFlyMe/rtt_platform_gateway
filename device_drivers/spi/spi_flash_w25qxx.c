@@ -20,8 +20,7 @@
 
 #if defined(USE_W25QXX) && defined(RT_USING_SPI)
 
-#define FLASH_DEBUG
-
+//#define FLASH_DEBUG
 #ifdef FLASH_DEBUG
 #define FLASH_TRACE         rt_kprintf
 #else

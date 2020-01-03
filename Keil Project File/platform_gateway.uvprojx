@@ -582,6 +582,11 @@
               <FileType>1</FileType>
               <FilePath>..\drivers\dvr_spi3.c</FilePath>
             </File>
+            <File>
+              <FileName>drv_gpio_sw.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_gpio_sw.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

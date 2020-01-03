@@ -37,7 +37,7 @@ static inline void _hw_led_reverse(led_type_t type);
 
 struct rt_device led_device;
 
-rt_err_t _control(rt_device_t dev, int cmd, void *args) {
+static rt_err_t _control(rt_device_t dev, int cmd, void *args) {
   rt_err_t _rt = RT_EOK;
   led_type_t _type = *(led_type_t *)(args);
 
