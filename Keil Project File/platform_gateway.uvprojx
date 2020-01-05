@@ -417,6 +417,11 @@
               <FileType>1</FileType>
               <FilePath>..\applications\common_cmd.c</FilePath>
             </File>
+            <File>
+              <FileName>rf_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\rf_utils.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

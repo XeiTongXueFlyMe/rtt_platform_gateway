@@ -5,15 +5,13 @@
 //#define UNIT_TEST
 #define ULOG_OUTPUT_LVL LOG_LVL_DBG
 
+#define USE_APP_RF
 #define USE_DRV_USART
 #define USE_DRV_GPIO_LED
 #define USE_DRV_GPIO_SW
 #define USE_DRV_XWATCHDOG
 #define USE_DRV_FLASH
 #define USE_DRV_SPI
-#ifdef USE_DRV_SPI
-#define USE_W25QXX
-#endif
 
 /* uart */
 #ifdef USE_DRV_USART
@@ -24,6 +22,11 @@
 //#define HW_USART_USING_UART2
 #define HW_USART_USING_UART3
 //#define HW_USART_USING_UART4
+#endif
+
+/*spi*/
+#ifdef USE_DRV_SPI
+#define USE_W25QXX
 #endif
 
 #ifdef DEBUG

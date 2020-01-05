@@ -119,7 +119,8 @@
 #define AT_USING_CLIENT
 #define AT_CLIENT_NUM_MAX 1
 #define AT_USING_SOCKET
-//#define AT_USING_CLI
+//#define AT_USING_CLI 
+
 #define AT_PRINT_RAW_CMD //用于开启 AT 命令通信数据的实时显示模式，方便调试
 
 /* VBUS(Virtual Software BUS) */
