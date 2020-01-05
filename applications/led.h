@@ -1,6 +1,11 @@
 #ifndef __LED_H
 #define __LED_H
 
+#include "rtdevice.h"
+#include "rtthread.h"
+
+#define app_led_event led_event
+
 //连接上服务器后,此灯闪烁
 #define EVENT_NET_STATUS_OPEN (1 << 0)
 #define EVENT_NET_STATUS_CLOSE (1 << 1)
@@ -17,5 +22,7 @@
 #define EVENT_SYS_OPEN (1 << 9)
 #define EVENT_SYS_CLOSE (1 << 10)
 #define EVENT_SYS_BLINK (1 << 11)
+
+extern struct rt_event led_event;
 
 #endif

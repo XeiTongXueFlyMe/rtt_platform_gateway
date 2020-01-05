@@ -1,7 +1,5 @@
 #include "led.h"
 #include "../drivers/drv_gpio_led.h"
-#include "rtdevice.h"
-#include "rtthread.h"
 
 #define LOG_TAG "app.led"
 #define LOG_LVL LOG_LVL_INFO
@@ -38,6 +36,8 @@ void led_blink(void) {
 MSH_CMD_EXPORT(led_blink, all led blink 5 count);
 #else
 
+struct rt_event led_event;
+
 struct led_factory {
   rt_device_t device_t;
   rt_uint32_t ctl;
@@ -51,12 +51,12 @@ static rt_err_t _open_close(struct led_factory *led);
 static rt_err_t _blink(struct led_factory *led);
 
 void led_thread_entry(void *parameter) {
-  struct rt_event _event;
+  struct rt_event *_event_t = &led_event;
   rt_err_t _err = RT_EOK;
   rt_device_t _d = RT_NULL;
   rt_uint32_t _recv = RT_EOK;
 
-  _err = rt_event_init(&_event, "led_thread_event", RT_IPC_FLAG_FIFO);
+  _err = rt_event_init(_event_t, "led_thread_event", RT_IPC_FLAG_FIFO);
   RT_ASSERT(RT_EOK == _err);
 
   _d = rt_device_find("led");
@@ -74,7 +74,7 @@ void led_thread_entry(void *parameter) {
 
   while (1) {
     _err = rt_event_recv(
-        &_event,
+        _event_t,
         (EVENT_NET_STATUS_OPEN | EVENT_GPRS_OPEN | EVENT_RF_OPEN |
          EVENT_SYS_OPEN | EVENT_NET_STATUS_CLOSE | EVENT_GPRS_CLOSE |
          EVENT_RF_CLOSE | EVENT_SYS_CLOSE | EVENT_NET_STATUS_BLINK |
