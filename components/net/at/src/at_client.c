@@ -15,8 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LOG_TAG              "at.clnt"
-#include <at_log.h>
+#define LOG_TAG    "at.clnt"
+#define LOG_LVL    LOG_LVL_DBG
+#include <ulog.h>
 
 #ifdef AT_USING_CLIENT
 

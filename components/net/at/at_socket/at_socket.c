@@ -20,8 +20,9 @@
 #include <dfs_poll.h>
 #endif
 
-#define LOG_TAG              "at.skt"
-#include <at_log.h>
+#define LOG_TAG    "at.skt"
+#define LOG_LVL    LOG_LVL_DBG
+#include <ulog.h>
 
 #ifdef AT_USING_SOCKET
 
