@@ -16,8 +16,9 @@
 
 #include <rthw.h>
 
-#define LOG_TAG              "at.svr"
-#include <at_log.h>
+#define LOG_TAG    "at.svr"
+#define LOG_LVL    LOG_LVL_DBG
+#include <ulog.h>
 
 #ifdef AT_USING_SERVER
 
