@@ -119,7 +119,7 @@ int sal_init(void)
     /* create sal socket lock */
     rt_mutex_init(&sal_core_lock, "sal_lock", RT_IPC_FLAG_FIFO);
 
-    LOG_I("Socket Abstraction Layer initialize success.");
+    LOG_D("Socket Abstraction Layer initialize success.");
     init_ok = RT_TRUE;
 
     return 0;
