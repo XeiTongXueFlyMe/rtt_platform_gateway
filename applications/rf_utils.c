@@ -5,9 +5,10 @@
 #ifdef USE_APP_RF
 
 static void _rf_help(void) {
-  rt_kprintf("\r\nrf debug cmd:");
+  rt_kprintf("\rrf cmd:");
   rt_kprintf("\r\n rf stat => printf rf status");
   rt_kprintf("\r\n rf config channel 6");
+  rt_kprintf("\r\n ");
 }
 static void _rf_stat(void) {
   // TODO
@@ -48,7 +49,7 @@ int rf(int argc, char **argv) {
   return 0;
 
 _exit:
-  rt_kprintf("Invalid parameter");
+  rt_kprintf("Invalid parameter\r\n");
   return 0;
 }
 
