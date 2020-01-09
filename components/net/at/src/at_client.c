@@ -114,7 +114,7 @@ at_response_t at_resp_set_info(at_response_t resp, rt_size_t buf_size, rt_size_t
         resp->buf = (char *) rt_realloc(resp->buf, buf_size);
         if (!resp->buf)
         {
-            LOG_D("No memory for realloc response buffer size(%d).", buf_size);
+            LOG_E("No memory for realloc response buffer size(%d).", buf_size);
             return RT_NULL;
         }
     }
@@ -680,7 +680,7 @@ static void client_parser(at_client_t client)
                 client->recv_buffer[client->cur_recv_len - 1] = '\0';
                 if (resp_buf_len + client->cur_recv_len < client->resp->buf_size)
                 {
-                    /* copy response lines, separated by '\0' */
+                    /* copy response lines, separated by \0'' */
                     memcpy(client->resp->buf + resp_buf_len, client->recv_buffer, client->cur_recv_len);
                     resp_buf_len += client->cur_recv_len;
 
@@ -720,7 +720,7 @@ static void client_parser(at_client_t client)
             }
             else
             {
-//                log_d("unrecognized line: %.*s", client->cur_recv_len, client->recv_buffer);
+                LOG_W("unrecognized line: %.*s", client->cur_recv_len, client->recv_buffer);
             }
         }
     }
@@ -914,7 +914,7 @@ __exit:
 
         rt_thread_startup(client->parser);
 
-        LOG_I("AT client(V%s) on device %s initialize success.", AT_SW_VERSION, dev_name);
+        LOG_D("AT client(V%s) on device %s initialize success.", AT_SW_VERSION, dev_name);
     }
     else
     {
