@@ -1,5 +1,5 @@
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __USART3_H__
+#define __USART3_H__
 
 #include <rthw.h>
 #include <rtthread.h>
