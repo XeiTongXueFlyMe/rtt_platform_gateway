@@ -122,6 +122,7 @@ extern "C" {
 #ifdef MTD_USING_NOR
 #include "drivers/mtdnor.h"
 #endif
+
 #ifdef MTD_USING_NAND
 #include "drivers/mtdnand.h"
 #endif

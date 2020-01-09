@@ -90,6 +90,12 @@
 //#define RT_USING_RTC
 
 /* Network */
+#ifndef RT_USING_SYSTEM_WORKQUEUE
+#define RT_USING_SYSTEM_WORKQUEUE
+#define RT_SYSTEM_WORKQUEUE_STACKSIZE 2048
+#define RT_SYSTEM_WORKQUEUE_PRIORITY (RT_THREAD_PRIORITY_MAX - 1)
+#endif /*RT_USING_SYSTEM_WORKQUEUE*/
+
 #define RT_USING_NETDEV
 #define NETDEV_USING_IFCONFIG
 #define NETDEV_USING_PING
@@ -97,6 +103,11 @@
 #define NETDEV_USING_AUTO_DEFAULT
 #define RT_USING_SAL
 #define SAL_USING_AT
+
+//fixme
+#ifdef RT_USING_SAL
+#define SAL_SOCKETS_NUM 1
+#endif
 //#define SAL_USING_LWIP
 //#define SAL_USING_TLS
 //#define SAL_USING_POSIX
@@ -120,9 +131,9 @@
 #define AT_CLIENT_NUM_MAX 1
 #define AT_USING_SOCKET
 //#define AT_DEVICE_SOCKETS_NUM 1
-//#define AT_USING_CLI 
+//#define AT_USING_CLI
 
-#define AT_PRINT_RAW_CMD //用于开启 AT 命令通信数据的实时显示模式，方便调试
+#define AT_PRINT_RAW_CMD  //用于开启 AT 命令通信数据的实时显示模式，方便调试
 
 /* VBUS(Virtual Software BUS) */
 
