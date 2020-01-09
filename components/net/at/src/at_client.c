@@ -612,6 +612,7 @@ static const struct at_urc *get_urc_obj(at_client_t client)
 
 static int at_recv_readline(at_client_t client)
 {
+    rt_err_t _rt = RT_EOK;
     rt_size_t read_len = 0;
     char ch = 0, last_ch = 0;
     rt_bool_t is_full = RT_FALSE;
@@ -621,7 +622,11 @@ static int at_recv_readline(at_client_t client)
 
     while (1)
     {
-        at_client_getchar(client, &ch, RT_WAITING_FOREVER);
+        _rt = at_client_getchar(client, &ch, RT_WAITING_FOREVER);
+        if (RT_EOK != _rt) {
+            LOG_W("file:%s,line:%d at_client_getchar() return %d ", __FILE__, __LINE__,
+                _rt);
+        }
 
         if (read_len < client->recv_bufsz)
         {
