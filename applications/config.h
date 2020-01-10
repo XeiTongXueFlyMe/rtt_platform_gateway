@@ -10,6 +10,7 @@
 #define USE_DRV_GPIO_LED
 #define USE_DRV_GPIO_SW
 #define USE_DRV_XWATCHDOG
+#define USE_DRV_IWATCHDOG
 #define USE_DRV_FLASH
 #define USE_DRV_SPI
 

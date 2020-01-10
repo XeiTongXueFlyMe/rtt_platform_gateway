@@ -4,7 +4,6 @@
 #define LOG_LVL LOG_LVL_INFO
 #include <ulog.h>
 
-//TODO；test xwdg 
 #ifdef USE_DRV_XWATCHDOG
 
 #define WDT_DEVICE_NAME    "xwdg"

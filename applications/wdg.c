@@ -2,7 +2,8 @@
 #include <rtthread.h>
 
 #ifdef USE_DRV_XWATCHDOG
-#define WDT_DEVICE_NAME "xwdg"
+#define XWDT_DEVICXE_NAME "xwdg"
+#define IWDT_DEVICXE_NAME "iwdg"
 
 #define LOG_TAG "app.xwdg"
 #define LOG_LVL LOG_LVL_DBG
@@ -12,18 +13,30 @@ static rt_thread_t _xwdg_tid = RT_NULL;
 
 void xwdg_thread_entry(void *parameter) {
   rt_err_t _rt = RT_EOK;
-  rt_device_t _d = RT_NULL;
+  rt_device_t _xd_t = RT_NULL;
+  rt_device_t _id_t = RT_NULL;
 
-  _d = rt_device_find(WDT_DEVICE_NAME);
-  RT_ASSERT(RT_NULL != _d);
-  _rt = rt_device_init(_d);
+  _xd_t = rt_device_find(XWDT_DEVICXE_NAME);
+  RT_ASSERT(RT_NULL != _xd_t);
+  _rt = rt_device_init(_xd_t);
+  RT_ASSERT(RT_EOK == _rt);
+
+  _id_t = rt_device_find(IWDT_DEVICXE_NAME);
+  RT_ASSERT(RT_NULL != _id_t);
+  _rt = rt_device_init(_id_t);
   RT_ASSERT(RT_EOK == _rt);
 
   while (1) {
-    _rt = rt_device_control(_d, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
+    _rt = rt_device_control(_xd_t, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
     if (RT_EOK != _rt) {
       LOG_E("%s line:%d",__FILE__, __LINE__);
     }
+
+    _rt = rt_device_control(_id_t, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
+    if (RT_EOK != _rt) {
+      LOG_E("%s line:%d",__FILE__, __LINE__);
+    }
+
     rt_thread_mdelay(1000);
   }
 }
