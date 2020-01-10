@@ -14,9 +14,6 @@
 #define USE_DRV_FLASH
 #define USE_DRV_SPI
 
-//FIXME
-#define AT_DEVICE_SOCKETS_NUM 1
-
 /* uart */
 #ifdef USE_DRV_USART
 #define HW_USART_BUFFER_RSIZE 1024
@@ -28,6 +25,12 @@
 #define HW_USART_USING_UART3
 //#define HW_USART_USING_UART4
 #endif
+
+#ifdef HW_USART_USING_UART1
+//FIXME
+#define AT_DEVICE_SOCKETS_NUM 1
+#define USE_DRV_EG25E
+#endif /*HW_USART_USING_UART1*/
 
 /*spi*/
 #ifdef USE_DRV_SPI

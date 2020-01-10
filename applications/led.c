@@ -223,8 +223,8 @@ RT_ERR:
   return _rt;
 }
 
-static rt_thread_t _led_tid = RT_NULL;
 int led_thread_init(void) {
+  rt_thread_t _led_tid = RT_NULL;
   _led_tid = rt_thread_create("app_led", led_thread_entry, RT_NULL, 2048,
                               RT_THREAD_PRIORITY_MAX - 1, 20);
   RT_ASSERT(_led_tid != RT_NULL);

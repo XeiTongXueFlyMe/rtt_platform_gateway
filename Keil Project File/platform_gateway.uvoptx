@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>燩3w /?燩3w /?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,41 +156,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>97</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134264072</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\drivers\drv_usart1.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\platform_gateway\../drivers/drv_usart1.c\97</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>99</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134264086</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\drivers\drv_usart1.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\platform_gateway\../drivers/drv_usart1.c\99</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
           <LineNumber>101</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134264094</Address>
+          <Address>134264108</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>

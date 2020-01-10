@@ -356,7 +356,7 @@ int at_client_obj_wait_connect(at_client_t client, rt_uint32_t timeout)
         return -RT_ERROR;
     }
 
-    resp = at_create_resp(16, 0, rt_tick_from_millisecond(500));
+    resp = at_create_resp(32, 0, rt_tick_from_millisecond(500));
     if (resp == RT_NULL)
     {
         LOG_E("No memory for response object!");
@@ -696,9 +696,9 @@ static void client_parser(at_client_t client)
                     client->resp_status = AT_RESP_BUFF_FULL;
                     LOG_E("Read response buffer failed. The Response buffer size is out of buffer size(%d)!", client->resp->buf_size);
                 }
+
                 /* check response result */
-                if (memcmp(client->recv_buffer, AT_RESP_END_OK, strlen(AT_RESP_END_OK)) == 0
-                        && client->resp->line_num == 0)
+                if (memcmp(client->recv_buffer, AT_RESP_END_OK, strlen(AT_RESP_END_OK)) == 0)
                 {
                     /* get the end data by response result, return response state END_OK. */
                     client->resp_status = AT_RESP_OK;
