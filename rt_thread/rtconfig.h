@@ -132,8 +132,8 @@
 #define AT_USING_SOCKET
 //#define AT_DEVICE_SOCKETS_NUM 1
 //#define AT_USING_CLI
-
-#define AT_PRINT_RAW_CMD  //用于开启 AT 命令通信数据的实时显示模式，方便调试
+//用于开启 AT 命令通信数据的实时显示模式，方便调试
+//#define AT_PRINT_RAW_CMD  
 
 /* VBUS(Virtual Software BUS) */
 

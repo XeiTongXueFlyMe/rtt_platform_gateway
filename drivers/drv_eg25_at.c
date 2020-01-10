@@ -8,13 +8,46 @@
 #include <at_socket.h>
 #include <netdev.h>
 #include <rtdevice.h>
+#include <stm32f2xx.h>
 #include "drv_usart1.h"
 
 #define EG25G_DEVICE_NAME "eg25_net"
 
-#define LOG_TAG "drv_stflash"
+#define LOG_TAG "drv_eg25"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
+
+#define RESET_PORT GPIOC
+#define RESET_PIN GPIO_Pin_9
+#define RESET_RCC RCC_AHB1Periph_GPIOC
+
+#define POWERKEY_PORT GPIOA
+#define POWERKEY_PIN GPIO_Pin_8
+#define PORT_RCC RCC_AHB1Periph_GPIOA
+
+static void _powerkey_on(void) { GPIO_SetBits(POWERKEY_PORT, POWERKEY_PIN); }
+static void _powerkey_off(void) { GPIO_ResetBits(POWERKEY_PORT, POWERKEY_PIN); }
+static void _reset_on(void) { GPIO_SetBits(RESET_PORT, RESET_PIN); }
+static void _reset_off(void) { GPIO_ResetBits(RESET_PORT, RESET_PIN); }
+
+void hw_eg25_init(void) {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_AHB1PeriphClockCmd(RESET_RCC, ENABLE);
+  RCC_AHB1PeriphClockCmd(PORT_RCC, ENABLE);
+
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+  GPIO_InitStructure.GPIO_Pin = RESET_PIN;
+  GPIO_Init(RESET_PORT, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin = POWERKEY_PIN;
+  GPIO_Init(POWERKEY_PORT, &GPIO_InitStructure);
+
+  _powerkey_on();
+  _reset_off();
+}
 
 static at_client_t at_client;
 
@@ -64,12 +97,15 @@ static const struct at_device_ops at_device = {
 const struct netdev_ops eg25_netdev_ops;
 struct netdev eg25_net_info;
 
+// hw init
 // init at_client
 // make at_socket_ops in at_client
 // register devnet
 // bind sal
 int eg25_module_init(void) {
   int _rt = 0;
+
+  hw_eg25_init();
 
   rt_memset(&eg25_net_info, 0x00, sizeof(struct netdev));
   // use uasrt1
@@ -94,9 +130,7 @@ INIT_ENV_EXPORT(eg25_module_init);
 
 int eg25_cmd(int argc, char **argv) {
   rt_size_t _sz = 0;
-  if (argc == 1) {
-    goto _exit;
-  }
+
   if (argc == 2) {
     _sz = rt_strnlen(argv[1], AT_CMD_MAX_LEN);
     if (_sz == AT_CMD_MAX_LEN) {
@@ -104,16 +138,23 @@ int eg25_cmd(int argc, char **argv) {
       goto _exit;
     }
     _sz = at_client_obj_send(at_client, argv[1], _sz);
-    if(_sz == 0){
+    if (_sz == 0) {
       LOG_E("send failed");
       goto _exit;
     }
+    _sz = at_client_obj_send(at_client, "\r\n", 2);
+    if (_sz == 0) {
+      LOG_E("send failed");
+      goto _exit;
+    }
+  } else {
+    LOG_W("Invalid parameter");
+    goto _exit;
   }
 
-  LOG_D("eg25_cmd exe ok");
+  LOG_D("send ok");
 _exit:
   return 0;
 }
 MSH_CMD_EXPORT(eg25_cmd, e.g : AT\r\n);
-
 // TODO； #endif
