@@ -16,7 +16,7 @@
 #include <string.h>
 
 #define LOG_TAG    "at.clnt"
-#define LOG_LVL    LOG_LVL_DBG
+#define LOG_LVL    LOG_LVL_INFO
 #include <ulog.h>
 
 #ifdef AT_USING_CLIENT

@@ -11,6 +11,8 @@
 #ifndef __AF_INET_H__
 #define __AF_INET_H__
 
+#include <arpa/inet.h>
+#include <netdev.h>
 #include <rtthread.h>
 
 #ifdef __cplusplus

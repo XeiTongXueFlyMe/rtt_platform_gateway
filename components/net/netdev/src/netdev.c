@@ -6,6 +6,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2019-03-18     ChenYong     First version
+ * 2020-01-09     Xieming      fix netstat
  */
 
 #include <stdio.h>
@@ -1125,7 +1126,11 @@ static void netdev_cmd_netstat(void)
     }
 
     rt_hw_interrupt_enable(level);
-
+    
+    if(RT_NULL == netdev->ops){
+        LOG_E("netdev.ops is null");
+        return ;
+    }
     netdev->ops->netstat(netdev);
 }
 
