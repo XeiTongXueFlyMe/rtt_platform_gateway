@@ -642,6 +642,11 @@
               <FileType>1</FileType>
               <FilePath>..\drivers\drv_eg25_at.c</FilePath>
             </File>
+            <File>
+              <FileName>drv_iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\drivers\drv_iwdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

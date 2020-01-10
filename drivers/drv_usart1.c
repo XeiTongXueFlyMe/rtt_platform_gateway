@@ -20,18 +20,17 @@ static void _rcc_configuration(void) {
   /* Enable UART GPIO clocks */
   RCC_AHB1PeriphClockCmd(UART_GPIO_RCC, ENABLE);
   /* Enable UART clock */
-  RCC_APB1PeriphClockCmd(UART_RCC, ENABLE);
+  RCC_APB2PeriphClockCmd(UART_RCC, ENABLE);
 }
 
 static void _gpio_configuration(void) {
   GPIO_InitTypeDef GPIO_InitStructure;
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
 
   GPIO_PinAFConfig(UART_GPIO_TX, 9, GPIO_AF_USART1);
   GPIO_PinAFConfig(UART_GPIO_RX, 10, GPIO_AF_USART1);
-
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
