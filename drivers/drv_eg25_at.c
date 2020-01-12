@@ -73,46 +73,45 @@ static const struct at_device_ops at_device = {
     eg25_domain_resolve, eg25_set_event_cb,
 };
 
-// struct netdev
-// {
-//     uint16_t mtu;                                      /* maximum transfer
-//     unit (in bytes) */ const struct netdev_ops *ops;                      /*
-//     network interface device operations */
+int _eg25_set_up(struct netdev *netdev) {
+  rt_event_send(&eg25_event, EVENT_EG25G_RESET);
+  return 0;
+}
 
-//     netdev_callback_fn status_callback;                /* network interface
-//     device flags change callback */ netdev_callback_fn addr_callback; /*
-//     network interface device address information change callback */
-// };
-// /* set network interface device hardware status operations */
+int _eg25_set_down(struct netdev *netdev) {
+  //立即掉电 AT+QPOWD=0
+  at_client_obj_send(at_client, "AT+QPOWD=0\r\n", rt_strlen("AT+QPOWD=0\r\n"));
+  _powerkey_off();
+  return 0;
+}
 
-// int (*set_addr_info)(struct netdev *netdev, ip_addr_t *ip_addr,
-// ip_addr_t*netmask, ip_addr_t *gw); int (*set_dns_server)(struct netdev
-// *netdev,uint8_t dns_num, ip_addr_t *dns_server); int (*set_dhcp)(struct
-// netdev *netdev, rt_bool_t is_enabled);
-
-// int (*ping)(struct netdev *netdev, const char *host, size_t data_len,uint32_t
-// timeout, struct netdev_ping_resp *ping_resp); void (*netstat)(struct netdev
-// *netdev);
-
-int _eg25_set_up(struct netdev *netdev) { return 0; }
-int _eg25_set_down(struct netdev *netdev) { return 0; }
-int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
-               uint32_t timeout, struct netdev_ping_resp *ping_resp) {
-         
+int _eg25_set_dhcp(struct netdev *netdev, rt_bool_t is_enabled) {
   return RT_EOK;
 }
-// struct netdev_ping_resp
-// {
-//     ip_addr_t ip_addr;                           /* response IP address */
-//     uint16_t data_len;                           /* response data length */
-//     uint16_t ttl;                                /* time to live */
-//     uint32_t ticks;                              /* response time, unit tick */
-//     void *user_data;                             /* user-specific data */
-// };
+int _eg25_set_addr_info(struct netdev *netdev, ip_addr_t *ip_addr,
+                        ip_addr_t *netmask, ip_addr_t *gw) {
+  return RT_EOK;
+}
+int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
+               uint32_t timeout, struct netdev_ping_resp *ping_resp) {
+  // struct netdev_ping_resp
+  // {
+  //     ip_addr_t ip_addr;                           /* response IP address */
+  //     uint16_t data_len;                           /* response data length */
+  //     uint16_t ttl;                                /* time to live */
+  //     uint32_t ticks;                              /* response time, unit
+  //     tick
+  //     */ void *user_data;                             /* user-specific data
+  //     */
+  // };
+  return RT_EOK;
+}
+void _eg25_netstat(struct netdev *netdev) { return; }
 
+// no set_dns_api
 const struct netdev_ops eg25_netdev_ops = {
-    _eg25_set_up, _eg25_set_down, RT_NULL, RT_NULL,
-    RT_NULL,      _eg25_ping,     RT_NULL,
+    _eg25_set_up,   _eg25_set_down, _eg25_set_addr_info, RT_NULL,
+    _eg25_set_dhcp, _eg25_ping,     _eg25_netstat,
 };
 struct netdev eg25_net_info;
 
@@ -126,8 +125,6 @@ int eg25_module_init(void) {
 
   hw_eg25_init();
 
-  rt_memset(&eg25_net_info, 0x00, sizeof(struct netdev));
-
   // use uasrt1
   // bufsize = 1024 * 4
   _rt = at_client_init(USART1_DEVICE_NAME, 1024 * 4);
@@ -140,6 +137,7 @@ int eg25_module_init(void) {
   _rt = sal_at_netdev_set_pf_info(&eg25_net_info);
   RT_ASSERT(0 == _rt);
 
+  eg25_net_info.ops = &eg25_netdev_ops;
   _rt = netdev_register(&eg25_net_info, EG25G_DEVICE_NAME, RT_NULL);
   RT_ASSERT(0 == _rt);
 
@@ -267,6 +265,10 @@ static rt_err_t _moudle_reset(void) {
   }
 
   netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
+//TODO: 考虑什么时候设置网卡的ip地址,dns地址参数，比较合适
+//netdev_low_level_set_ipaddr
+//netdev_low_level_set_dhcp_status
+
   return _rt;
 _exit:
   return _rt;
