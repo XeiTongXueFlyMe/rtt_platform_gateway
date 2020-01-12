@@ -126,6 +126,7 @@ int sal_init(void)
 }
 INIT_COMPONENT_EXPORT(sal_init);
 
+//TODO：增加sal 接口，将internet status判断交给底层驱动。
 /* check SAL network interface device internet status */
 static void check_netdev_internet_up_work(struct rt_work *work, void *work_data)
 {

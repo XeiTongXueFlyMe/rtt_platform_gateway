@@ -65,6 +65,7 @@ int eg25_send(int socket, const char *buff, size_t bfsz,
               enum at_socket_type type) {
   return 0;
 }
+//域名解析
 int eg25_domain_resolve(const char *name, char ip[16]) { return 0; }
 void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { return; }
 
@@ -90,6 +91,7 @@ int _eg25_set_dhcp(struct netdev *netdev, rt_bool_t is_enabled) {
 }
 int _eg25_set_addr_info(struct netdev *netdev, ip_addr_t *ip_addr,
                         ip_addr_t *netmask, ip_addr_t *gw) {
+
   return RT_EOK;
 }
 int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
@@ -106,7 +108,11 @@ int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
   // };
   return RT_EOK;
 }
-void _eg25_netstat(struct netdev *netdev) { return; }
+void _eg25_netstat(struct netdev *netdev) { 
+  //TODO:打印网卡状态，连接参数等，用于网络调试
+  rt_kprintf("\r\n开发中...\r\n");
+  return;
+}
 
 // no set_dns_api
 const struct netdev_ops eg25_netdev_ops = {
