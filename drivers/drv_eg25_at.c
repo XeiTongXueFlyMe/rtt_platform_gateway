@@ -88,7 +88,51 @@ static at_client_t at_client;
 
 int eg25_connect(int socket, char *ip, int32_t port, enum at_socket_type type,
                  rt_bool_t is_client) {
-  return 0;
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  char *_server_type = RT_NULL;
+
+  _resp = at_create_resp(80, 3, rt_tick_from_millisecond(2000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+  if (is_client != RT_TRUE) {
+    LOG_E("eg25 no support tcp|udp server");
+    return -RT_EINVAL;
+  }
+  if (type == AT_SOCKET_INVALID) {
+    return -RT_EINVAL;
+  }
+  if (type == AT_SOCKET_TCP) {
+    _server_type = "TCP";
+  }
+  if (type == AT_SOCKET_UDP) {
+    _server_type = "UDP";
+  }
+
+  //非透传Buffer模式,随机端口
+  _rt = at_obj_exec_cmd(at_client, _resp,
+                        "AT+QIOPEN=1,%d,\"%s\",\"%s\",%d,0,0\r\n", socket,
+                        _server_type, ip, port);
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+
+  //做一个事件
+  // _rt = at_resp_parse_line_args_by_kw(_resp, "+QIOPEN:", "+QIOPEN:%d,", );
+  // if (_rt != 2) {
+  //   _rt = -RT_ERROR;
+  //   goto _exit;
+  // }
+
+  at_delete_resp(_resp);
+  return RT_EOK;
+_exit:
+  at_delete_resp(_resp);
+  return _rt;
 }
 int eg25_closesocket(int socket) { return 0; }
 int eg25_send(int socket, const char *buff, size_t bfsz,
@@ -148,7 +192,7 @@ void urc_ping_cb(const char *data, rt_size_t size) {
     rt_kprintf("%d bytes from %s  ttl=%d time=%d ms\n", _plen,
                inet_ntoa(*_ip_adder), _ttl, _t);
   } else if (_rt != RT_EOK) {
-    LOG_I("eg25 return err code: %d", _rt);
+    LOG_I("please read EG25 TCP/IP man err code: %d", _rt);
   }
 }
 
