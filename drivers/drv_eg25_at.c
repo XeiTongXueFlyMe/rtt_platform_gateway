@@ -9,6 +9,9 @@
 #include <at_socket.h>
 #include <netdev.h>
 #include <rtdevice.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stm32f2xx.h>
 #include "drv_usart1.h"
 
@@ -28,11 +31,38 @@
 #define POWERKEY_PIN GPIO_Pin_8
 #define PORT_RCC RCC_AHB1Periph_GPIOA
 
+void urc_ping_cb(const char *data, rt_size_t size);
+void urc_null_cb(const char *data, rt_size_t size);
+
 struct rt_event eg25_event;
+struct at_urc eg25_urc_table[] = {
+    {
+        .cmd_prefix = "+QPING:",
+        .cmd_suffix = "\r\n",
+        .func = urc_ping_cb,
+    },
+    {
+        .cmd_prefix = "\r",
+        .cmd_suffix = "\n",
+        .func = urc_null_cb,
+    },
+    {
+        .cmd_prefix = "AT+QPOWD=0",
+        .cmd_suffix = "\r\n",
+        .func = urc_null_cb,
+    },
+    {
+        .cmd_prefix = "POWERED DOWN",
+        .cmd_suffix = "\r\n",
+        .func = urc_null_cb,
+    },
+};
+
+void urc_null_cb(const char *data, rt_size_t size) { return; }
 
 static void _powerkey_on(void) { GPIO_SetBits(POWERKEY_PORT, POWERKEY_PIN); }
 static void _powerkey_off(void) { GPIO_ResetBits(POWERKEY_PORT, POWERKEY_PIN); }
-static void _reset_on(void) { GPIO_SetBits(RESET_PORT, RESET_PIN); }
+// static void _reset_on(void) { GPIO_SetBits(RESET_PORT, RESET_PIN); }
 static void _reset_off(void) { GPIO_ResetBits(RESET_PORT, RESET_PIN); }
 
 void hw_eg25_init(void) {
@@ -83,6 +113,7 @@ int _eg25_set_down(struct netdev *netdev) {
   //立即掉电 AT+QPOWD=0
   at_client_obj_send(at_client, "AT+QPOWD=0\r\n", rt_strlen("AT+QPOWD=0\r\n"));
   _powerkey_off();
+  _reset_off();
   return 0;
 }
 
@@ -91,25 +122,75 @@ int _eg25_set_dhcp(struct netdev *netdev, rt_bool_t is_enabled) {
 }
 int _eg25_set_addr_info(struct netdev *netdev, ip_addr_t *ip_addr,
                         ip_addr_t *netmask, ip_addr_t *gw) {
-
   return RT_EOK;
 }
+static int _get_matches(const char *str, const char *format, ...) {
+  int _parse_num = 0;
+  va_list args;
+  va_start(args, format);
+  _parse_num = vsscanf(str, format, args);
+  va_end(args);
+
+  return _parse_num;
+}
+void urc_ping_cb(const char *data, rt_size_t size) {
+  int _parse_num = 0;
+  int _rt = RT_EOK;
+  rt_uint8_t ip_adder[4];
+  rt_uint8_t *_ip_adder = ip_adder;
+  int _plen = RT_EOK;
+  int _t = RT_EOK;
+  int _ttl = RT_EOK;
+
+  rt_memset(ip_adder, '\0', sizeof(ip_adder));
+  _parse_num = _get_matches(data, "+QPING: %d,\"%d.%d.%d.%d\",%d,%d,%d", &_rt,
+                            _ip_adder, _ip_adder + 1, _ip_adder + 2,
+                            _ip_adder + 3, &_plen, &_t, &_ttl);
+  if ((_parse_num == 0) || (_parse_num == -1)) {
+    LOG_E("file:%s,line:%d vsscanf() fail", __FILE__, __LINE__);
+    return;
+  }
+
+  if ((_rt == RT_EOK) && (_parse_num == 8)) {
+    rt_kprintf("%d bytes from %s  ttl=%d time=%d ms\n", _plen,
+               inet_ntoa(*_ip_adder), _ttl, _t);
+  } else if (_rt != RT_EOK) {
+    LOG_I("eg25 return err code: %d", _rt);
+  }
+}
+
 int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
                uint32_t timeout, struct netdev_ping_resp *ping_resp) {
-  // struct netdev_ping_resp
-  // {
-  //     ip_addr_t ip_addr;                           /* response IP address */
-  //     uint16_t data_len;                           /* response data length */
-  //     uint16_t ttl;                                /* time to live */
-  //     uint32_t ticks;                              /* response time, unit
-  //     tick
-  //     */ void *user_data;                             /* user-specific data
-  //     */
-  // };
-  return RT_EOK;
+#define ASYN_PRINTF 11  //异步打印ping 的结果
+
+  rt_err_t _rt = ASYN_PRINTF;
+  at_response_t _resp = RT_NULL;
+
+  _resp = at_create_resp(80, 2, rt_tick_from_millisecond(timeout * 1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+
+  // FIXME:暂时子支持场景1
+  //请求次数为1
+  _rt = at_obj_exec_cmd(at_client, _resp, "AT+QPING=1,\"%s\",%d,1\r\n", host,
+                        timeout);
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  return ASYN_PRINTF;
+_exit:
+  at_delete_resp(_resp);
+  return _rt;
 }
-void _eg25_netstat(struct netdev *netdev) { 
-  //TODO:打印网卡状态，连接参数等，用于网络调试
+
+void _eg25_netstat(struct netdev *netdev) {
+  // TODO:打印网卡状态，连接参数等，用于网络调试
   rt_kprintf("\r\n开发中...\r\n");
   return;
 }
@@ -137,6 +218,8 @@ int eg25_module_init(void) {
   RT_ASSERT(0 == _rt);
   at_client = at_client_get(USART1_DEVICE_NAME);
   RT_ASSERT(RT_NULL != at_client);
+  at_obj_set_urc_table(at_client, eg25_urc_table,
+                       sizeof(eg25_urc_table) / sizeof(struct at_urc));
 
   at_socket_device_register(&at_device);
 
@@ -160,11 +243,10 @@ static rt_err_t _check_link(void) {
 
 rt_err_t _check_param(at_client_t client, rt_uint32_t timeout,
                       rt_uint32_t resp_timeout, const char *check_data_1,
-                      const char *check_data_2, const char *cmd_expr, ...) {
+                      const char *check_data_2, const char *cmd_expr) {
   rt_err_t _rt = RT_EOK;
   at_response_t _resp = RT_NULL;
   rt_tick_t _st = 0;  // start_time
-  va_list args;
 
   _resp = at_create_resp(80, 4, rt_tick_from_millisecond(resp_timeout));
   if (_resp == RT_NULL) {
@@ -180,11 +262,8 @@ rt_err_t _check_param(at_client_t client, rt_uint32_t timeout,
       _rt = -RT_ETIMEOUT;
       break;
     }
-    /*check sim card*/
     _resp->line_counts = 0;
-    va_start(args, cmd_expr);
-    _rt = at_obj_exec_cmd(at_client, _resp, cmd_expr, args);
-    va_end(args);
+    _rt = at_obj_exec_cmd(at_client, _resp, cmd_expr);
     switch (_rt) {
       case (-RT_ETIMEOUT):
         continue;
@@ -210,7 +289,7 @@ _exit:
 static rt_err_t _moudle_reset(void) {
   rt_err_t _rt = RT_EOK;
 
-  LOG_I("eg25g reset");
+  LOG_W("eg25g moudle reset!");
   netdev_low_level_set_link_status(&eg25_net_info, RT_FALSE);
 
   //立即掉电
@@ -271,9 +350,9 @@ static rt_err_t _moudle_reset(void) {
   }
 
   netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
-//TODO: 考虑什么时候设置网卡的ip地址,dns地址参数，比较合适
-//netdev_low_level_set_ipaddr
-//netdev_low_level_set_dhcp_status
+  // TODO: 考虑什么时候设置网卡的ip地址,dns地址参数，比较合适
+  // netdev_low_level_set_ipaddr
+  // netdev_low_level_set_dhcp_status
 
   return _rt;
 _exit:

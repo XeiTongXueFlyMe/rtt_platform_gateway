@@ -941,10 +941,10 @@ FINSH_FUNCTION_EXPORT_ALIAS(netdev_ifconfig, __cmd_ifconfig, list the informatio
 static int netdev_cmd_ping(char* target_name, rt_uint32_t times, rt_size_t size)
 {
 #define NETDEV_PING_DATA_SIZE       32
-/** ping receive timeout - in milliseconds */
-#define NETDEV_PING_RECV_TIMEO      (2 * RT_TICK_PER_SECOND)
+/** ping receive timeout  s*/
+#define NETDEV_PING_RECV_TIMEO      4
 /** ping delay - in milliseconds */
-#define NETDEV_PING_DELAY           (1 * RT_TICK_PER_SECOND)
+#define NETDEV_PING_DELAY           1000
 /* check netdev ping options */
 #define NETDEV_PING_IS_COMMONICABLE(netdev) \
     ((netdev) && (netdev)->ops && (netdev)->ops->ping && \
@@ -990,7 +990,7 @@ static int netdev_cmd_ping(char* target_name, rt_uint32_t times, rt_size_t size)
                 (ip_addr_isany(&(ping_resp.ip_addr))) ? "host" : "address",
                     (ip_addr_isany(&(ping_resp.ip_addr))) ? target_name : inet_ntoa(ping_resp.ip_addr));
         }
-        else
+        else if (ret == RT_EOK)
         {
             if (ping_resp.ttl == 0)
             {

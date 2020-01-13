@@ -302,6 +302,7 @@ int at_obj_exec_cmd(at_client_t client, at_response_t resp, const char *cmd_expr
     client->resp_status = AT_RESP_OK;
     client->resp = resp;
 
+
     va_start(args, cmd_expr);
     at_vprintfln(client->device, cmd_expr, args);
     va_end(args);
