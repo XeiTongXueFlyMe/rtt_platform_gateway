@@ -117,13 +117,6 @@ int _eg25_set_down(struct netdev *netdev) {
   return 0;
 }
 
-int _eg25_set_dhcp(struct netdev *netdev, rt_bool_t is_enabled) {
-  return RT_EOK;
-}
-int _eg25_set_addr_info(struct netdev *netdev, ip_addr_t *ip_addr,
-                        ip_addr_t *netmask, ip_addr_t *gw) {
-  return RT_EOK;
-}
 static int _get_matches(const char *str, const char *format, ...) {
   int _parse_num = 0;
   va_list args;
@@ -192,13 +185,14 @@ _exit:
 void _eg25_netstat(struct netdev *netdev) {
   // TODO:打印网卡状态，连接参数等，用于网络调试
   rt_kprintf("\r\n开发中...\r\n");
+  // AT+QISTATE?  返回现存所有连接状态
   return;
 }
 
-// no set_dns_api
+// no _eg25_set_dns_server  _eg25_set_dhcp _eg25_set_addr_info
 const struct netdev_ops eg25_netdev_ops = {
-    _eg25_set_up,   _eg25_set_down, _eg25_set_addr_info, RT_NULL,
-    _eg25_set_dhcp, _eg25_ping,     _eg25_netstat,
+    _eg25_set_up, _eg25_set_down, RT_NULL,       RT_NULL,
+    RT_NULL,      _eg25_ping,     _eg25_netstat,
 };
 struct netdev eg25_net_info;
 
@@ -286,6 +280,87 @@ _exit:
   return _rt;
 }
 
+static rt_err_t _eg25_read_self_ip(void) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  rt_uint8_t ip_adder[4];
+
+  _resp = at_create_resp(80, 3, rt_tick_from_millisecond(1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+
+  // FIXME:暂时子支持场景1
+  //请求次数为1
+  _rt = at_obj_exec_cmd(at_client, _resp, "AT+QIACT?\r\n");
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+  //场景1 场景状态必须是激活，协议必须是 ipv4  => +QIACT: 1,1,1,"x.x.x.x"
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIACT:", "+QIACT: 1,1,1,\"%d.%d.%d.%d\"", ip_adder, ip_adder + 1,
+      ip_adder + 2, ip_adder + 3);
+  if (_rt != 4) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+  netdev_low_level_set_ipaddr(&eg25_net_info, (ip_addr_t *)ip_adder);
+
+  at_delete_resp(_resp);
+  return RT_EOK;
+_exit:
+  at_delete_resp(_resp);
+  return _rt;
+}
+static rt_err_t _eg25_read_self_dns(void) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  rt_uint8_t pridns_adder[4];
+  rt_uint8_t secdns_adder[4];
+
+  _resp = at_create_resp(96, 3, rt_tick_from_millisecond(2000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+
+  // FIXME:暂时子支持场景1
+  //请求次数为1
+  _rt = at_obj_exec_cmd(at_client, _resp, "AT+QIDNSCFG=1\r\n");
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+  //场景1 场景状态必须是激活，协议必须是 ipv4  =>
+  //+QIDNSCFG:1,"x.x.x.x","x.x.x.x"
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIDNSCFG:", "+QIDNSCFG: 1,\"%d.%d.%d.%d\"", pridns_adder,
+      pridns_adder + 1, pridns_adder + 2, pridns_adder + 3);
+  if (_rt != 4) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+  netdev_low_level_set_dns_server(&eg25_net_info, 0, (ip_addr_t *)pridns_adder);
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIDNSCFG:", "+QIDNSCFG: 1,\"%d.%d.%d.%d\",\"%d.%d.%d.%d\"",
+      pridns_adder, pridns_adder + 1, pridns_adder + 2, pridns_adder + 3,
+      secdns_adder, secdns_adder + 1, secdns_adder + 2, secdns_adder + 3);
+  if (_rt != 8) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+  netdev_low_level_set_dns_server(&eg25_net_info, 1, (ip_addr_t *)secdns_adder);
+
+  at_delete_resp(_resp);
+  return RT_EOK;
+_exit:
+  at_delete_resp(_resp);
+  return _rt;
+}
 static rt_err_t _moudle_reset(void) {
   rt_err_t _rt = RT_EOK;
 
@@ -350,9 +425,21 @@ static rt_err_t _moudle_reset(void) {
   }
 
   netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
-  // TODO: 考虑什么时候设置网卡的ip地址,dns地址参数，比较合适
-  // netdev_low_level_set_ipaddr
-  // netdev_low_level_set_dhcp_status
+
+  _rt = _eg25_read_self_ip();
+  if (RT_EOK != _rt) {
+    LOG_W("no read eg25_self ip adder");
+    goto _exit;
+  }
+
+  _rt = _eg25_read_self_dns();
+  if (RT_EOK != _rt) {
+    LOG_W("no read eg25_self dns adder");
+    goto _exit;
+  }
+
+  // eg25只支持dhcp模式
+  netdev_low_level_set_dhcp_status(&eg25_net_info, RT_TRUE);
 
   return _rt;
 _exit:
