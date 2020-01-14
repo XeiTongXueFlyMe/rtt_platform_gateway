@@ -32,6 +32,10 @@
 #define USE_DRV_EG25E
 #endif /*HW_USART_USING_UART1*/
 
+#ifdef HW_USART_USING_UART4
+#define USE_USR_K7
+#endif 
+
 /*spi*/
 #ifdef USE_DRV_SPI
 #define USE_W25QXX
