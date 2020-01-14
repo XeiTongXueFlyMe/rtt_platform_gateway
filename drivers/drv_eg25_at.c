@@ -503,6 +503,7 @@ void eg25_thread_entry(void *parameter) {
   } while (RT_EOK != _rt);
 
   while (1) {
+    // TODO:信号强度检测
     // link 状态检测
     _rt = _check_link();
     if (RT_EOK != _rt) {
