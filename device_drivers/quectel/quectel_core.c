@@ -29,16 +29,55 @@ struct quectel_core {
   at_client_t at_client;
   quectel_pin_ops_t pin_ops_t;
 
-  rt_err_t (*send_cmd_parse_recv)(quectel_core_t self, rt_uint32_t timeout,
-                                  rt_uint32_t cmd_timeout,
-                                  const char *check_data_1,
-                                  const char *check_data_2,
-                                  const char *cmd_expr);
-  //模块复位
-  //指令发送
-  //数据发送
+  rt_err_t (*shutdown)(quectel_core_t self);
+  rt_err_t (*turn_on)(quectel_core_t self) rt_err_t (*send_cmd_parse_recv)(
+      quectel_core_t self, rt_uint32_t timeout, rt_uint32_t cmd_timeout,
+      const char *check_data_1, const char *check_data_2, const char *cmd_expr);
+
+  char *name;
+  rt_mutex mu;
 };
 typedef struct quectel_core *quectel_core_t;
+
+void urc_null_cb(const char *data, rt_size_t size);
+
+struct at_urc eg25_urc_table[] = {
+    {
+        .cmd_prefix = "\r",
+        .cmd_suffix = "\n",
+        .func = urc_null_cb,
+    },
+    {
+        .cmd_prefix = "AT+QPOWD=0",
+        .cmd_suffix = "\r\n",
+        .func = urc_null_cb,
+    },
+    {
+        .cmd_prefix = "POWERED DOWN",
+        .cmd_suffix = "\r\n",
+        .func = urc_null_cb,
+    },
+    {
+        .cmd_prefix = "+QIURC:\"recv\"",
+        .cmd_suffix = "\r\n",
+        // TODO:做好接受数据准备，统计数据长度，创建at_create_resp
+        .func = urc_null_cb,
+    },
+};
+
+//fixme 少参数表明quectel_core
+void urc_qiurc_recv(const char *data, rt_size_t size) {
+  // LOG_D 打印数据大小
+
+  // todo
+  _resp = at_create_resp(80, 1, rt_tick_from_millisecond(100));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object! recv_data = %s", data);
+    return;
+  }
+}
+
+void urc_null_cb(const char *data, rt_size_t size) { return; }
 
 void powerkey_on(quectel_core_t self) { self->pin_ops_t->powerkey_on(); }
 
@@ -49,16 +88,21 @@ void reset_on(quectel_core_t self) { self->pin_ops_t->reset_on(); }
 void reset_off(quectel_core_t self) { self->pin_ops_t->reset_off(); }
 
 rt_err_t shutdown(quectel_core_t self) {
-  LOG_D("shutdown");
+  LOG_D("%s.shutdown", self->name);
   rt_uint32_t _len = 0;
   _len = at_client_obj_send(self->at_client, "AT+QPOWD=0\r\n",
                             rt_strlen("AT+QPOWD=0\r\n"));
   if (_len != rt_strlen("AT+QPOWD=0\r\n")) {
-    return RT_ERROR;
+    return -RT_ERROR;
   }
 
   self->pin_ops_t->powerkey_off();
   self->pin_ops_t->powerkey_off();
+  return RT_EOK;
+}
+rt_err_t turn_on(quectel_core_t self) {
+  LOG_D("%s.turn_on", self->name);
+  // TODO:启动并复位模块
   return RT_EOK;
 }
 /* 循环发送指令，解析接受
@@ -110,12 +154,14 @@ _exit:
   return _rt;
 }
 
-quectel_core_t new_quectel_core(at_client_t at_client,
+quectel_core_t new_quectel_core(char *name, at_client_t at_client,
                                 quectel_pin_ops_t pin_ops_t) {
+  rt_err_t _rt = RT_EOK;
   quectel_core_t _core_t = RT_NULL;
 
   RT_ASSERT(at_client != RT_NULL);
   RT_ASSERT(pin_ops_t != RT_NULL);
+  RT_ASSERT(_core_t->name != RT_NULL);
   RT_ASSERT(pin_ops_t->powerkey_on != RT_NULL);
   RT_ASSERT(pin_ops_t->powerkey_off != RT_NULL);
   RT_ASSERT(pin_ops_t->reset_on != RT_NULL);
@@ -124,7 +170,13 @@ quectel_core_t new_quectel_core(at_client_t at_client,
   _core_t = rt_calloc(1, sizeof(struct quectel_core));
   RT_ASSERT(core_t != RT_NULL);
 
+  _core_t->name = name;
+  _core_t->shutdown = shutdown;
+  _core_t->turn_on = turn_on;
   _core_t->send_cmd_parse_recv = send_cmd_parse_recv;
+
+  _rt = rt_mutex_init(&(_core_t->mu), _core_t->name, RT_IPC_FLAG_FIFO);
+  RT_ASSERT(_rt == RT_EOK);
 
   return _core_t;
 }
