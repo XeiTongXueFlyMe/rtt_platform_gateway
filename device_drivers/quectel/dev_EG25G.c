@@ -125,6 +125,22 @@ _exit:
   return _rt;
 }
 
+static rt_err_t net_read_dns(void) {
+  rt_err_t _rt = RT_EOK;
+  quectel_dns_addr _dns_1;
+  quectel_dns_addr _dns_2;
+
+  _rt = qs_read_context_dns(eg25g_item.qs_t, _dns_1, _dns_2);
+  if (RT_EOK != _rt) {
+    goto _exit;
+  }
+  netdev_low_level_set_dns_server(&eg25_net_info, 0, (ip_addr_t *)_dns_1);
+  netdev_low_level_set_dns_server(&eg25_net_info, 1, (ip_addr_t *)_dns_2);
+
+_exit:
+  return _rt;
+}
+
 static void eg25_thread_entry(void *parameter) {
   rt_err_t _rt = RT_EOK;
   rt_event_t _event_t = &eg25_event;
@@ -146,6 +162,10 @@ static void eg25_thread_entry(void *parameter) {
           rt_event_send(&eg25_event, EVENT_EG25G_RESET);
         } else {
           _rt = netdev_read_ip();
+          if (RT_EOK != _rt) {
+            LOG_W("read ipadder fail");
+          }
+          _rt = net_read_dns();
           if (RT_EOK != _rt) {
             LOG_W("read ipadder fail");
           }

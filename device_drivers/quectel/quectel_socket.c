@@ -143,6 +143,54 @@ _exit:
 //   },
 // 读取dns
 // 读取本地ip
+rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
+                             quectel_dns_addr dns_2) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+  quectel_dns_addr dns;
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(96, 3, rt_tick_from_millisecond(2000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+  _rt = at_obj_exec_cmd(_clinet, _resp, "AT+QIDNSCFG=1\r\n");
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+  //场景1 场景状态必须是激活，协议必须是 ipv4  =>
+  //+QIDNSCFG:1,"x.x.x.x","x.x.x.x"
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIDNSCFG:", "+QIDNSCFG: 1,\"%d.%d.%d.%d\"", dns_1, dns_1 + 1,
+      dns_1 + 2, dns_1 + 3);
+  if (_rt != 4) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIDNSCFG:", "+QIDNSCFG: 1,\"%d.%d.%d.%d\",\"%d.%d.%d.%d\"",
+      dns, dns + 1, dns + 2, dns + 3, dns_2, dns_2 + 1, dns_2 + 2,
+      dns_2 + 3);
+  if (_rt != 8) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
+
 rt_err_t qs_read_context_ip(quectel_socket_t _socket,
                             quectel_ip_addr ip_adder) {
   rt_err_t _rt = RT_EOK;
