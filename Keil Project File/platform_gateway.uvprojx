@@ -587,6 +587,21 @@
               <FileType>1</FileType>
               <FilePath>..\device_drivers\rtc\soft_rtc.c</FilePath>
             </File>
+            <File>
+              <FileName>dev_EG25G.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\quectel\dev_EG25G.c</FilePath>
+            </File>
+            <File>
+              <FileName>quectel_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\quectel\quectel_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>quectel_socket.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device_drivers\quectel\quectel_socket.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

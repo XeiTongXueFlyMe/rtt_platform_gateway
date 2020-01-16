@@ -127,6 +127,10 @@ extern "C" {
 #include "drivers/mtdnand.h"
 #endif
 
+#ifdef RT_USING_QUECTEL_MOUDLE
+#include "drivers/dev_quectel.h"
+#endif
+
 #ifdef __cplusplus
 }
 #endif

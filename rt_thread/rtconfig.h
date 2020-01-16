@@ -84,7 +84,7 @@
 #define RT_USING_SPI
 #define RT_USING_RTC
 #define RT_USING_SOFT_RTC
-#define RT_USING_QUECTEL_RTC
+#define RT_USING_QUECTEL_MOUDLE
 
 //#define RT_USING_DEVICE_IPC
 //#define RT_PIPE_BUFSZ 512
