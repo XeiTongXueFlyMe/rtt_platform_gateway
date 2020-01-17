@@ -5,16 +5,12 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2012-01-08     bernard      first version.
- * 2012-02-03     bernard      add const attribute to the ops.
- * 2012-05-15     dzzxzz       fixed the return value in attach_device.
- * 2012-05-18     bernard      Changed SPI message to message list.
- *                             Added take/release SPI device/bus interface.
- * 2012-09-28     aozima       fixed rt_spi_release_bus assert error.
- * 2019-12-31     xieming      perfect return error.
+ * 2020-01-15     xieming      first version.
  */
 
 #include <rtdevice.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define LOG_TAG "qtl.skt"
 #define LOG_LVL LOG_LVL_DBG
@@ -22,7 +18,12 @@
 
 #ifdef RT_USING_QUECTEL_MOUDLE
 
+// FIXME:由于at_client组件的回调机制
+struct rt_mailbox *mb_ping_t;
+struct rt_mailbox *mb_recv_t;
+
 quectel_socket_t new_quectel_socket(quectel_core_t _core) {
+  rt_err_t _rt = RT_EOK;
   quectel_socket_t _socket = RT_NULL;
 
   RT_ASSERT(_core != RT_NULL);
@@ -31,11 +32,28 @@ quectel_socket_t new_quectel_socket(quectel_core_t _core) {
 
   _socket->_core = _core;
 
+  /* 初始化一个mailbox */
+  _rt =
+      rt_mb_init(&(_socket->mb_ping), "mb_ping", _socket->mb_ping_pool,
+                 sizeof(_socket->mb_ping_pool) /
+                     4, /* 大小是mb_pool大小除以4，因为一封邮件的大小是4字节 */
+                 RT_IPC_FLAG_FIFO); /* 采用FIFO方式进行线程等待 */
+  RT_ASSERT(RT_EOK == _rt);
+
+  _rt =
+      rt_mb_init(&(_socket->mb_recv), "mb_ping", _socket->mb_recv_pool,
+                 sizeof(_socket->mb_recv_pool) /
+                     4, /* 大小是mb_pool大小除以4，因为一封邮件的大小是4字节 */
+                 RT_IPC_FLAG_FIFO); /* 采用FIFO方式进行线程等待 */
+  RT_ASSERT(RT_EOK == _rt);
+
+  mb_ping_t = &_socket->mb_ping;
+  mb_recv_t = &_socket->mb_recv;
+
   return _socket;
 }
 
 // 设置网络场景
-// FIXME:默认设置场景一
 rt_err_t qs_set_context(quectel_socket_t _socket) {
   rt_err_t _rt = RT_EOK;
   _rt = qc_check_link(_socket->_core);
@@ -92,42 +110,44 @@ rt_err_t qs_set_context(quectel_socket_t _socket) {
 _exit:
   return _rt;
 }
+
+rt_err_t qc_ping(quectel_socket_t _socket, const char *host, uint32_t timeout,
+                 struct quectel_ping_resp *ping_resp) {
+  rt_err_t _rt = RT_EOK;
+  at_client_t _clinet = RT_NULL;
+  at_response_t _resp = RT_NULL;
+  struct quectel_ping_resp *_ping_resp_t;
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(80, 2, rt_tick_from_millisecond(timeout * 1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+  _rt = at_obj_exec_cmd(_clinet, _resp, "AT+QPING=1,\"%s\",%d,1\r\n", host,
+                        timeout);
+  if (0 != _rt) {
+    LOG_E("file:%s,line:%d code:at_obj_exec_cmd() return %d", __FILE__,
+          __LINE__, _rt);
+    goto _exit;
+  }
+
+  if (rt_mb_recv(&(_socket->mb_ping), (rt_uint32_t *)&_ping_resp_t,
+                 rt_tick_from_millisecond(timeout * 1000 * 2)) == RT_EOK) {
+    rt_memcpy(ping_resp, _ping_resp_t, sizeof(struct quectel_ping_resp));
+    rt_free(_ping_resp_t);
+  } else {
+    _rt = -RT_ERROR;
+  }
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
+
 // ping
 // netstat
-// static int _get_matches(const char *str, const char *format, ...) {
-//   int _parse_num = 0;
-//   va_list args;
-//   va_start(args, format);
-//   _parse_num = vsscanf(str, format, args);
-//   va_end(args);
-// void urc_ping_cb(const char *data, rt_size_t size) {
-//   int _parse_num = 0;
-//   int _rt = RT_EOK;
-//   rt_uint8_t ip_adder[4];
-//   rt_uint8_t *_ip_adder = ip_adder;
-//   int _plen = RT_EOK;
-//   int _t = RT_EOK;
-//   int _ttl = RT_EOK;
-
-//   rt_memset(ip_adder, '\0', sizeof(ip_adder));
-//   _parse_num = _get_matches(data, "+QPING: %d,\"%d.%d.%d.%d\",%d,%d,%d",
-//   &_rt,
-//                             _ip_adder, _ip_adder + 1, _ip_adder + 2,
-//                             _ip_adder + 3, &_plen, &_t, &_ttl);
-//   if ((_parse_num == 0) || (_parse_num == -1)) {
-//     LOG_E("file:%s,line:%d vsscanf() fail", __FILE__, __LINE__);
-//     return;
-//   }
-
-//   if ((_rt == RT_EOK) && (_parse_num == 8)) {
-//     rt_kprintf("%d bytes from %s  ttl=%d time=%d ms\n", _plen,
-//                inet_ntoa(*_ip_adder), _ttl, _t);
-//   } else if (_rt != RT_EOK) {
-//     LOG_I("please read EG25 TCP/IP man err code: %d", _rt);
-//   }
-// }
-//   return _parse_num;
-// }
 // connect
 // closesocket
 // send
@@ -135,14 +155,7 @@ _exit:
 
 // domain_resolve
 // 信号强度
-// #define SOCKET_URC_TABLE       \
-//   {                            \
-//       .cmd_prefix = "+QPING:", \
-//       .cmd_suffix = "\r\n",    \
-//       .func = urc_ping_cb,     \
-//   },
-// 读取dns
-// 读取本地ip
+
 rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
                              quectel_dns_addr dns_2) {
   rt_err_t _rt = RT_EOK;
@@ -229,4 +242,84 @@ _exit:
   qc_release_cmd_client(_socket->_core);
   return _rt;
 }
+
+// void urc_ping_cb(const char *data, rt_size_t size) {
+//   int _parse_num = 0;
+//   int _rt = RT_EOK;
+//   rt_uint8_t ip_adder[4];
+//   rt_uint8_t *_ip_adder = ip_adder;
+//   int _plen = RT_EOK;
+//   int _t = RT_EOK;
+//   int _ttl = RT_EOK;
+
+//   rt_memset(ip_adder, '\0', sizeof(ip_adder));
+//   _parse_num = _get_matches(data, "+QPING: %d,\"%d.%d.%d.%d\",%d,%d,%d",
+//   &_rt,
+//                             _ip_adder, _ip_adder + 1, _ip_adder + 2,
+//                             _ip_adder + 3, &_plen, &_t, &_ttl);
+//   if ((_parse_num == 0) || (_parse_num == -1)) {
+//     LOG_E("file:%s,line:%d vsscanf() fail", __FILE__, __LINE__);
+//     return;
+//   }
+
+//   if ((_rt == RT_EOK) && (_parse_num == 8)) {
+//     rt_kprintf("%d bytes from %s  ttl=%d time=%d ms\n", _plen,
+//                inet_ntoa(*_ip_adder), _ttl, _t);
+//   } else if (_rt != RT_EOK) {
+//     LOG_I("please read EG25 TCP/IP man err code: %d", _rt);
+//   }
+// }
+//   return _parse_num;
+// }
+static int _get_matches(const char *str, const char *format, ...) {
+  int _parse_num = 0;
+  va_list args;
+  va_start(args, format);
+  _parse_num = vsscanf(str, format, args);
+  va_end(args);
+
+  return _parse_num;
+}
+
+void urc_ping_cb(const char *data, rt_size_t size) {
+  int _parse_num = 0;
+  int _rt = RT_EOK;
+  rt_uint8_t ip_adder[4];
+  rt_uint8_t *_ip_adder = ip_adder;
+  int _plen = RT_EOK;
+  int _t = RT_EOK;
+  int _ttl = RT_EOK;
+  struct quectel_ping_resp *_ping_resp_t = RT_NULL;
+
+  rt_memset(ip_adder, '\0', sizeof(ip_adder));
+  _parse_num = _get_matches(data, "+QPING: %d,\"%d.%d.%d.%d\",%d,%d,%d", &_rt,
+                            _ip_adder, _ip_adder + 1, _ip_adder + 2,
+                            _ip_adder + 3, &_plen, &_t, &_ttl);
+  if ((_parse_num != 8)) {
+    return;
+  }
+  if (_rt != RT_EOK) {
+    LOG_I("please read EG25 TCP/IP man err code: %d", _rt);
+    goto _exit;
+  }
+  _ping_resp_t = rt_calloc(1, sizeof(struct quectel_ping_resp));
+  if (_ping_resp_t == RT_NULL) {
+    LOG_E("No memory for response object!");
+    goto _exit;
+  }
+  rt_memcpy(_ping_resp_t->ip, ip_adder, sizeof(quectel_ip_addr));
+  _ping_resp_t->len = _plen;
+  _ping_resp_t->ttl = _ttl;
+  _ping_resp_t->ticks = _t;
+
+  _rt = rt_mb_send(mb_ping_t, (rt_uint32_t)_ping_resp_t);
+  if (_rt != RT_EOK) {
+    LOG_I("mb_ping :rt_mb_send fail code: %d", _rt);
+    rt_free(_ping_resp_t);
+  }
+
+_exit:
+  return;
+}
+
 #endif

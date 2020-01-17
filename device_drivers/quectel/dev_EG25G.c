@@ -37,6 +37,7 @@ struct rt_event eg25_event;
 
 struct at_urc eg25_urc_table[] = {
     CORE_URC_TABLE,
+    SOCKET_URC_TABLE,
 };
 
 int eg25_connect(int socket, char *ip, int32_t port, enum at_socket_type type,
@@ -57,10 +58,27 @@ static const struct at_device_ops at_device = {
     eg25_connect,        eg25_closesocket,  eg25_send,
     eg25_domain_resolve, eg25_set_event_cb,
 };
+
 int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
                uint32_t timeout, struct netdev_ping_resp *ping_resp) {
-  return 0;
+  rt_err_t _rt = RT_EOK;
+  struct quectel_ping_resp _ping_resp;
+
+  _rt = qc_ping(eg25g_item.qs_t, host, timeout, &_ping_resp);
+  if (_rt != RT_EOK) {
+    LOG_I("ping %s fail", host);
+    goto _exit;
+  }
+  rt_memcpy((&(ping_resp->ip_addr)), (&_ping_resp)->ip,
+            sizeof(quectel_ip_addr));
+  (*ping_resp).data_len = _ping_resp.len;
+  (*ping_resp).ttl = _ping_resp.ttl;
+  (*ping_resp).ticks = _ping_resp.ticks;
+
+_exit:
+  return _rt;
 }
+
 // no _eg25_set_dns_server  _eg25_set_dhcp _eg25_set_addr_info
 void _eg25_netstat(struct netdev *netdev) {
   // TODO:打印网卡状态，连接参数等，用于网络调试
@@ -74,8 +92,7 @@ int _eg25_set_up(struct netdev *netdev) {
 }
 
 int _eg25_set_down(struct netdev *netdev) {
-  //立即掉电 AT+QPOWD=0
-
+  eg25g_item.qc_t->pin_ops_t->powerkey_off();
   netdev_low_level_set_status(&eg25_net_info, RT_FALSE);
   return 0;
 }
