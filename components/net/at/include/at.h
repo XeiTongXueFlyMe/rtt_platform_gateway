@@ -134,6 +134,10 @@ struct at_response
     rt_size_t line_counts;
     /* the maximum response time */
     rt_int32_t timeout;
+    /*current recv buf len*/
+    int current_buf_len;
+    /*current recv line*/
+    rt_size_t current_line_counts;
 };
 
 typedef struct at_response *at_response_t;

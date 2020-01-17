@@ -37,14 +37,19 @@ struct quectel_socket {
 typedef struct quectel_socket* quectel_socket_t;
 quectel_socket_t new_quectel_socket(quectel_core_t _core);
 
+rt_err_t qs_read_csq(quectel_socket_t _socket, rt_uint8_t* csq);
 rt_err_t qs_set_context(quectel_socket_t _socket);
 rt_err_t qs_read_context_ip(quectel_socket_t _socket, quectel_ip_addr ip_adder);
 rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
                              quectel_dns_addr dns_2);
-rt_err_t qc_ping(quectel_socket_t _socket, const char* host, uint32_t timeout,
+rt_err_t qs_ping(quectel_socket_t _socket, const char* host, uint32_t timeout,
                  struct quectel_ping_resp* ping_resp);
 rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char* type,
                     char* ip, int32_t port);
+rt_err_t qs_tcp_send(quectel_socket_t _socket, rt_int32_t socket,
+                     const char* buff, size_t bfsz);
+rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char* host,
+                           quectel_ip_addr ipadder);
 
 void urc_ping_cb(const char* data, rt_size_t size);
 

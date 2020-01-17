@@ -23,7 +23,7 @@
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
-//1500 是EG25G 一次性接受最大的长度 ,100预留命令长度
+// 1500 是EG25G 一次性接受最大的长度 ,100预留命令长度
 #define EG25G_DTU_SIZE (1500 + 100)
 #define EVENT_EG25G_RESET (1 << 0)
 
@@ -67,13 +67,19 @@ int eg25_connect(int socket, char *ip, int32_t port, enum at_socket_type type,
   return RT_EOK;
 }
 int eg25_closesocket(int socket) { return 0; }
+
 int eg25_send(int socket, const char *buff, size_t bfsz,
               enum at_socket_type type) {
-    if (type == AT_SOCKET_TCP) {
-    LOG_E("eg25 no support tcp|udp server");
-    }
-    return -RT_EINVAL;
+  rt_err_t _rt = RT_EOK;
+
+  _rt = qs_tcp_send(eg25g_item.qs_t, socket, buff, bfsz);
+  if (_rt != RT_EOK) {
+    return -RT_ERROR;
+  }
+
+  return RT_EOK;
 }
+
 //域名解析
 int eg25_domain_resolve(const char *name, char ip[16]) { return 0; }
 void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { return; }
@@ -89,7 +95,7 @@ int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
   rt_err_t _rt = RT_EOK;
   struct quectel_ping_resp _ping_resp;
 
-  _rt = qc_ping(eg25g_item.qs_t, host, timeout, &_ping_resp);
+  _rt = qs_ping(eg25g_item.qs_t, host, timeout, &_ping_resp);
   if (_rt != RT_EOK) {
     LOG_I("ping %s fail", host);
     goto _exit;
@@ -286,7 +292,23 @@ rt_err_t rt_hw_eg25g_register(char *name, const char *dev_uart_name,
 
 int eg25(int argc, char **argv) {
   rt_size_t _sz = 0;
+  rt_uint8_t _csq = 0;
+  quectel_ip_addr ipadder;
+  at_client_t _clinet = RT_NULL;
 
+  if (argc == 1) {
+    qs_read_csq(eg25g_item.qs_t, &_csq);
+    LOG_I("_csq = %d", _csq);
+    qs_domain_resolve(eg25g_item.qs_t, "www.baidu.com", ipadder);
+    LOG_I("www.baidu.com : %d.%d.%d.%d", ipadder[0], ipadder[1], ipadder[2],
+          ipadder[3]);
+    qs_domain_resolve(eg25g_item.qs_t, "www.sina.com.cn", ipadder);
+    LOG_I("www.sina.com.cn : %d.%d.%d.%d", ipadder[0], ipadder[1], ipadder[2],
+          ipadder[3]);
+    goto _return;
+  }
+
+  _clinet = qc_take_cmd_client(eg25g_item.qc_t);
   if (argc == 2) {
     _sz = rt_strnlen(argv[1], AT_CMD_MAX_LEN);
     if (_sz == AT_CMD_MAX_LEN) {
@@ -294,12 +316,12 @@ int eg25(int argc, char **argv) {
       goto _exit;
     }
 
-    _sz = at_client_obj_send(eg25g_item.qc_t->at_client, argv[1], _sz);
+    _sz = at_client_obj_send(_clinet, argv[1], _sz);
     if (_sz == 0) {
       LOG_W("send failed");
       goto _exit;
     }
-    _sz = at_client_obj_send(eg25g_item.qc_t->at_client, "\r\n", 2);
+    _sz = at_client_obj_send(_clinet, "\r\n", 2);
     if (_sz == 0) {
       LOG_W("send failed");
       goto _exit;
@@ -310,8 +332,11 @@ int eg25(int argc, char **argv) {
     goto _exit;
   }
 
+  rt_thread_mdelay(200);
   LOG_D("send ok");
 _exit:
+  qc_release_cmd_client(eg25g_item.qc_t);
+_return:
   return 0;
 }
 

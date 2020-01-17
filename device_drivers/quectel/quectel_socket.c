@@ -11,6 +11,7 @@
 #include <rtdevice.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define LOG_TAG "qtl.skt"
 #define LOG_LVL LOG_LVL_DBG
@@ -111,7 +112,7 @@ _exit:
   return _rt;
 }
 
-rt_err_t qc_ping(quectel_socket_t _socket, const char *host, uint32_t timeout,
+rt_err_t qs_ping(quectel_socket_t _socket, const char *host, uint32_t timeout,
                  struct quectel_ping_resp *ping_resp) {
   rt_err_t _rt = RT_EOK;
   at_client_t _clinet = RT_NULL;
@@ -145,19 +146,137 @@ _exit:
   qc_release_cmd_client(_socket->_core);
   return _rt;
 }
-// netstat
 
-// connect
-
-// closesocketqc_
-
-// send
-// rt_err_t qc_send(quectel_socket_t _socket, rt_int32_t socket, const char *buff,
-//                  size_t bfsz) {}
-
+// closesocket
 // set_recv_cb 分socket链接号
-// domain_resolve
-// 信号强度
+
+//TODO :bug
+rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char *host,
+                           quectel_ip_addr ip_adder) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+  rt_int32_t _ip[4];
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(180, 5, rt_tick_from_millisecond(1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    _rt = -RT_ENOMEM;
+    goto _exit;
+  }
+
+  _rt = at_obj_exec_cmd(_clinet, _resp, "AT+QIDNSGIP=1,\"%s\"\r\n", host);
+  if ((0 != _rt) && (_rt != -RT_ETIMEOUT)) {
+    LOG_E("AT+QIDNSGIP=1,\"%s\" _rt = %d", host, _rt);
+    goto _exit;
+  }
+  _rt = at_resp_parse_line_args_by_kw(
+      _resp, "+QIURC: \"dnsgip\"", "+QIURC: \"dnsgip\",\"%d.%d.%d.%d\"",
+      _ip, _ip + 1, _ip + 2, _ip + 3);
+  if (_rt != 4) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+
+  for (rt_uint8_t _i = 0; _i < 4; _i++) {
+    ip_adder[_i] = (rt_uint8_t)_ip[_i];
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
+
+// rt_err_t qs_netstat(quectel_socket_t _socket) {
+
+// }
+rt_err_t qs_read_csq(quectel_socket_t _socket, rt_uint8_t *csq) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(40, 3, rt_tick_from_millisecond(1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    _rt = -RT_ENOMEM;
+    goto _exit;
+  }
+
+  _rt = at_obj_exec_cmd(_clinet, _resp, "AT+CSQ\r\n");
+  if (0 != _rt) {
+    LOG_E("AT+CSQ return %d", _rt);
+    goto _exit;
+  }
+
+  _rt = at_resp_parse_line_args_by_kw(_resp, "+CSQ:", "+CSQ: %d,", csq);
+  if (_rt != 1) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
+
+rt_err_t qs_tcp_send(quectel_socket_t _socket, rt_int32_t socket,
+                     const char *buff, size_t bfsz) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+  char _buf[12];
+
+  rt_memset(_buf, '\0', sizeof(_buf));
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(2, 1, rt_tick_from_millisecond(100));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+  _rt = at_obj_exec_cmd(_clinet, _resp, "AT+QISEND=%d,%d\r\n", socket, bfsz);
+  if (0 != _rt) {
+    LOG_E("AT+QISEND= return %d", socket, bfsz, _rt);
+    goto _exit;
+  }
+
+  if (at_resp_get_line_by_kw(_resp, ">") == RT_NULL) {
+    LOG_E("no recv \">\" after AT+QISEND");
+    goto _exit;
+  }
+
+  at_client_obj_send(_clinet, buff, bfsz);
+  // wait SEND OK
+  _rt = at_client_obj_recv(_clinet, _buf, sizeof(_buf) - 1, 200);
+  if (!strstr(_buf, "SEND OK")) {
+    if (RT_EOK != _rt) {
+      LOG_E("find SEND OK timeout after send data _rt = %d", _rt);
+      goto _exit;
+    }
+    LOG_E("no recv send ok after send data");
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
 
 rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char *type,
                     char *ip, int32_t port) {

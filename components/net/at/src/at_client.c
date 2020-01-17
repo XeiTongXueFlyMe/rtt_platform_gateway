@@ -8,8 +8,8 @@
  * 2018-03-30     chenyong     first version
  * 2018-04-12     chenyong     add client implement
  * 2018-08-17     chenyong     multiple client support
+ * 2020-01-17     Xieming      fix parser resp 
  */
-
 #include <at.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -664,9 +664,7 @@ static int at_recv_readline(at_client_t client)
 
 static void client_parser(at_client_t client)
 {
-    int resp_buf_len = 0;
     const struct at_urc *urc;
-    rt_size_t line_counts = 0;
 
     while(1)
     {
@@ -684,13 +682,13 @@ static void client_parser(at_client_t client)
             {
                 /* current receive is response */
                 client->recv_buffer[client->cur_recv_len - 1] = '\0';
-                if (resp_buf_len + client->cur_recv_len < client->resp->buf_size)
+                if (client->resp->current_buf_len + client->cur_recv_len < client->resp->buf_size)
                 {
                     /* copy response lines, separated by \0'' */
-                    memcpy(client->resp->buf + resp_buf_len, client->recv_buffer, client->cur_recv_len);
-                    resp_buf_len += client->cur_recv_len;
+                    memcpy(client->resp->buf + client->resp->current_buf_len, client->recv_buffer, client->cur_recv_len);
+                    client->resp->current_buf_len += client->cur_recv_len;
 
-                    line_counts++;
+                    client->resp->current_line_counts++;
                 }
                 else
                 {
@@ -710,7 +708,7 @@ static void client_parser(at_client_t client)
                 {
                     client->resp_status = AT_RESP_ERROR;
                 }
-                else if (line_counts == client->resp->line_num && client->resp->line_num)
+                else if (client->resp->current_line_counts == client->resp->line_num && client->resp->line_num)
                 {
                     /* get the end data by response line, return response state END_OK.*/
                     client->resp_status = AT_RESP_OK;
@@ -719,11 +717,12 @@ static void client_parser(at_client_t client)
                 {
                     continue;
                 }
-                client->resp->line_counts = line_counts;
+                client->resp->line_counts = client->resp->current_line_counts;
 
                 client->resp = RT_NULL;
+                client->resp->current_buf_len = 0;
+                client->resp->current_line_counts = 0;
                 rt_sem_release(client->resp_notice);
-                resp_buf_len = 0, line_counts = 0;
             }
             else
             {
