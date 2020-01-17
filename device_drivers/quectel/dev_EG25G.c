@@ -169,7 +169,7 @@ static void eg25_thread_entry(void *parameter) {
         netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
       }
     }
- 
+
     // check ip ,dns config
     if (!netdev_ip_is_set(&eg25_net_info)) {
       _rt = netdev_read_ip();
