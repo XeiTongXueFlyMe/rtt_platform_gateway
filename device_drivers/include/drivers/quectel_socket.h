@@ -43,14 +43,12 @@ rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
                              quectel_dns_addr dns_2);
 rt_err_t qc_ping(quectel_socket_t _socket, const char* host, uint32_t timeout,
                  struct quectel_ping_resp* ping_resp);
+rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char* type,
+                    char* ip, int32_t port);
 
 void urc_ping_cb(const char* data, rt_size_t size);
 
-#define SOCKET_URC_TABLE       \
-  {                            \
-      .cmd_prefix = "+QPING:", \
-      .cmd_suffix = "\r\n",    \
-      .func = urc_ping_cb,     \
-  }
+#define SOCKET_URC_TABLE \
+  { .cmd_prefix = "+QPING:", .cmd_suffix = "\r\n", .func = urc_ping_cb, }
 
 #endif

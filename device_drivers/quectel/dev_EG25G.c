@@ -23,7 +23,8 @@
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
-#define EG25G_DTU_SIZE (1024 * 4)
+//1500 是EG25G 一次性接受最大的长度 ,100预留命令长度
+#define EG25G_DTU_SIZE (1500 + 100)
 #define EVENT_EG25G_RESET (1 << 0)
 
 struct eg25g_factoy {
@@ -42,12 +43,36 @@ struct at_urc eg25_urc_table[] = {
 
 int eg25_connect(int socket, char *ip, int32_t port, enum at_socket_type type,
                  rt_bool_t is_client) {
+  rt_err_t _rt = RT_EOK;
+  char *_type = RT_NULL;
+
+  if (is_client != RT_TRUE) {
+    LOG_E("eg25 no support tcp|udp server");
+    return -RT_EINVAL;
+  }
+  if (type == AT_SOCKET_INVALID) {
+    return -RT_EINVAL;
+  }
+  if (type == AT_SOCKET_TCP) {
+    _type = "TCP";
+  }
+  if (type == AT_SOCKET_UDP) {
+    _type = "UDP";
+  }
+  _rt = qs_connect(eg25g_item.qs_t, socket, _type, ip, port);
+  if (_rt != RT_EOK) {
+    return -RT_ERROR;
+  }
+
   return RT_EOK;
 }
 int eg25_closesocket(int socket) { return 0; }
 int eg25_send(int socket, const char *buff, size_t bfsz,
               enum at_socket_type type) {
-  return 0;
+    if (type == AT_SOCKET_TCP) {
+    LOG_E("eg25 no support tcp|udp server");
+    }
+    return -RT_EINVAL;
 }
 //域名解析
 int eg25_domain_resolve(const char *name, char ip[16]) { return 0; }
@@ -87,11 +112,13 @@ void _eg25_netstat(struct netdev *netdev) {
   return;
 }
 int _eg25_set_up(struct netdev *netdev) {
+  LOG_I("eg25_set_up");
   rt_event_send(&eg25_event, EVENT_EG25G_RESET);
   return 0;
 }
 
 int _eg25_set_down(struct netdev *netdev) {
+  LOG_I("eg25_set_down");
   eg25g_item.qc_t->pin_ops_t->powerkey_off();
   netdev_low_level_set_status(&eg25_net_info, RT_FALSE);
   return 0;
@@ -203,11 +230,11 @@ static void eg25_thread_entry(void *parameter) {
   _wait_reset:
     _rt = rt_event_recv(_event_t, EVENT_EG25G_RESET,
                         RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-                        rt_tick_from_millisecond(5000), &_recv);
+                        rt_tick_from_millisecond(1000), &_recv);
     if ((RT_EOK != _rt) && ((-RT_ETIMEOUT) != _rt)) {
       LOG_E("file:%s,line:%d _rt = %d", __FILE__, __LINE__, _rt);
     }
-    if (_recv & EVENT_EG25G_RESET) {
+    if ((_recv & EVENT_EG25G_RESET) && ((-RT_ETIMEOUT) != _rt)) {
       do {
         _rt = _moudle_reset();
       } while (RT_EOK != _rt);

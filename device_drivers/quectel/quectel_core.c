@@ -86,7 +86,7 @@ rt_err_t qc_send_cmd_parse_recv(quectel_core_t self, rt_uint32_t timeout,
 
   rt_mutex_take(&(self->_mu), RT_WAITING_FOREVER);
 
-  _resp = at_create_resp(120, 4, rt_tick_from_millisecond(cmd_timeout));
+  _resp = at_create_resp(120, 0, rt_tick_from_millisecond(cmd_timeout));
   if (_resp == RT_NULL) {
     LOG_E("No memory for response object!");
     return -RT_ENOMEM;
@@ -96,7 +96,7 @@ rt_err_t qc_send_cmd_parse_recv(quectel_core_t self, rt_uint32_t timeout,
   for (;;) {
     /* Check whether it is timeout */
     if (rt_tick_get() - _st > rt_tick_from_millisecond(timeout)) {
-      LOG_E("%s cmd: send timeout %d millisecond!", cmd_expr, timeout);
+      LOG_W("%s cmd: send timeout %d millisecond!", cmd_expr, timeout);
       _rt = -RT_ETIMEOUT;
       break;
     }
@@ -109,6 +109,9 @@ rt_err_t qc_send_cmd_parse_recv(quectel_core_t self, rt_uint32_t timeout,
       case (-RT_ERROR):
         _rt = -RT_EIO;
         goto _exit;
+      case (-RT_EBUSY):
+        _rt = -RT_EBUSY;
+        goto _exit;
       default:
         break;
     }
@@ -117,6 +120,8 @@ rt_err_t qc_send_cmd_parse_recv(quectel_core_t self, rt_uint32_t timeout,
         (at_resp_get_line_by_kw(_resp, check_data_2) != RT_NULL)) {
       _rt = RT_EOK;
       goto _exit;
+    } else {
+      rt_thread_mdelay(timeout > 1000 ? 1000 : timeout);
     }
   }
 

@@ -145,16 +145,64 @@ _exit:
   qc_release_cmd_client(_socket->_core);
   return _rt;
 }
-
-// ping
 // netstat
-// connect
-// closesocket
-// send
-// set_recv_cb 分socket链接号
 
+// connect
+
+// closesocketqc_
+
+// send
+// rt_err_t qc_send(quectel_socket_t _socket, rt_int32_t socket, const char *buff,
+//                  size_t bfsz) {}
+
+// set_recv_cb 分socket链接号
 // domain_resolve
 // 信号强度
+
+rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char *type,
+                    char *ip, int32_t port) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+  rt_int32_t _s = 0;
+  rt_int32_t _result = 0;
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(96, 3, rt_tick_from_millisecond(5000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    return -RT_ENOMEM;
+  }
+
+  _rt =
+      at_obj_exec_cmd(_clinet, _resp, "AT+QIOPEN=1,%d,\"%s\",\"%s\",%d,0,1\r\n",
+                      socket, type, ip, port);
+  if (0 != _rt) {
+    LOG_E("AT+QIOPEN=1,%d,\"%s\",\"%s\",%d,0,0 return %d", socket, type, ip,
+          port, _rt);
+    goto _exit;
+  }
+  _rt = at_resp_parse_line_args_by_kw(_resp, "+QIOPEN:", "+QIOPEN: %d,%d", &_s,
+                                      &_result);
+  if (_rt != 2) {
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+  if ((_s == socket) && (_result == 0)) {
+    LOG_W("open %s:%s fail: socket = %d,result= %d", type, ip, _s, _result);
+    _rt = -RT_ERROR;
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
 
 rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
                              quectel_dns_addr dns_2) {
@@ -243,34 +291,6 @@ _exit:
   return _rt;
 }
 
-// void urc_ping_cb(const char *data, rt_size_t size) {
-//   int _parse_num = 0;
-//   int _rt = RT_EOK;
-//   rt_uint8_t ip_adder[4];
-//   rt_uint8_t *_ip_adder = ip_adder;
-//   int _plen = RT_EOK;
-//   int _t = RT_EOK;
-//   int _ttl = RT_EOK;
-
-//   rt_memset(ip_adder, '\0', sizeof(ip_adder));
-//   _parse_num = _get_matches(data, "+QPING: %d,\"%d.%d.%d.%d\",%d,%d,%d",
-//   &_rt,
-//                             _ip_adder, _ip_adder + 1, _ip_adder + 2,
-//                             _ip_adder + 3, &_plen, &_t, &_ttl);
-//   if ((_parse_num == 0) || (_parse_num == -1)) {
-//     LOG_E("file:%s,line:%d vsscanf() fail", __FILE__, __LINE__);
-//     return;
-//   }
-
-//   if ((_rt == RT_EOK) && (_parse_num == 8)) {
-//     rt_kprintf("%d bytes from %s  ttl=%d time=%d ms\n", _plen,
-//                inet_ntoa(*_ip_adder), _ttl, _t);
-//   } else if (_rt != RT_EOK) {
-//     LOG_I("please read EG25 TCP/IP man err code: %d", _rt);
-//   }
-// }
-//   return _parse_num;
-// }
 static int _get_matches(const char *str, const char *format, ...) {
   int _parse_num = 0;
   va_list args;
