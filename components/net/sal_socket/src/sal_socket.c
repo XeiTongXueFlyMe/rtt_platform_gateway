@@ -7,6 +7,7 @@
  * Date           Author       Notes
  * 2018-05-23     ChenYong     First version
  * 2018-11-12     ChenYong     Add TLS support
+ * 2020-01-17     Xieming      check_netdev_internet_up_work
  */
 
 #include <rtthread.h>
@@ -23,10 +24,13 @@
 
 #include <ipc/workqueue.h>
 
+#if 0  //不使用官方的网络状态检查,国外环境不适用
 /* check system workqueue stack size */
 #if RT_SYSTEM_WORKQUEUE_STACKSIZE < 1536
 #error "The system workqueue stack size must more than 1536 bytes"
 #endif
+#endif
+
 
 #define DBG_TAG                        "sal.skt"
 #define DBG_LVL                        DBG_INFO
@@ -126,7 +130,8 @@ int sal_init(void)
 }
 INIT_COMPONENT_EXPORT(sal_init);
 
-//TODO：增加sal 接口，将internet status判断交给底层驱动。
+//fixme：将internet status判断交给应用层，官方这套代码不实用，例如在国外。
+#if 0
 /* check SAL network interface device internet status */
 static void check_netdev_internet_up_work(struct rt_work *work, void *work_data)
 {
@@ -256,7 +261,7 @@ __exit:
         skt_ops->closesocket(sockfd);
     }
 }
-
+#endif
 /**
  * This function will check SAL network interface device internet status.
  *
@@ -264,6 +269,7 @@ __exit:
  */
 int sal_check_netdev_internet_up(struct netdev *netdev)
 {
+#if 0
     /* workqueue for network connect */
     struct rt_delayed_work *net_work = RT_NULL;
 
@@ -278,7 +284,7 @@ int sal_check_netdev_internet_up(struct netdev *netdev)
 
     rt_delayed_work_init(net_work, check_netdev_internet_up_work, (void *)netdev);
     rt_work_submit(&(net_work->work), RT_TICK_PER_SECOND);
-    
+#endif    
     return 0;
 }
 

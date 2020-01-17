@@ -699,7 +699,8 @@ static void client_parser(at_client_t client)
                 }
 
                 /* check response result */
-                if (memcmp(client->recv_buffer, AT_RESP_END_OK, strlen(AT_RESP_END_OK)) == 0)
+                if (memcmp(client->recv_buffer, AT_RESP_END_OK, strlen(AT_RESP_END_OK)) == 0
+                    && client->resp->line_num == 0)
                 {
                     /* get the end data by response result, return response state END_OK. */
                     client->resp_status = AT_RESP_OK;
