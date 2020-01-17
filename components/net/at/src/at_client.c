@@ -67,6 +67,7 @@ at_response_t at_create_resp(rt_size_t buf_size, rt_size_t line_num, rt_int32_t 
     resp->line_num = line_num;
     resp->line_counts = 0;
     resp->timeout = timeout;
+    resp->current_buf_len = 0;
 
     return resp;
 }
@@ -688,7 +689,7 @@ static void client_parser(at_client_t client)
                     memcpy(client->resp->buf + client->resp->current_buf_len, client->recv_buffer, client->cur_recv_len);
                     client->resp->current_buf_len += client->cur_recv_len;
 
-                    client->resp->current_line_counts++;
+                    client->resp->line_counts++;
                 }
                 else
                 {
@@ -708,7 +709,7 @@ static void client_parser(at_client_t client)
                 {
                     client->resp_status = AT_RESP_ERROR;
                 }
-                else if (client->resp->current_line_counts == client->resp->line_num && client->resp->line_num)
+                else if (client->resp->line_counts == client->resp->line_num && client->resp->line_num)
                 {
                     /* get the end data by response line, return response state END_OK.*/
                     client->resp_status = AT_RESP_OK;
@@ -717,11 +718,9 @@ static void client_parser(at_client_t client)
                 {
                     continue;
                 }
-                client->resp->line_counts = client->resp->current_line_counts;
-
+                 
                 client->resp = RT_NULL;
                 client->resp->current_buf_len = 0;
-                client->resp->current_line_counts = 0;
                 rt_sem_release(client->resp_notice);
             }
             else

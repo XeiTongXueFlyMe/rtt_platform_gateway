@@ -102,6 +102,7 @@ rt_err_t qc_send_cmd_parse_recv(quectel_core_t self, rt_uint32_t timeout,
     }
 
     _resp->line_counts = 0;
+    _resp->current_buf_len = 0;
     _rt = at_obj_exec_cmd(self->at_client, _resp, cmd_expr);
     switch (_rt) {
       case (-RT_ETIMEOUT):

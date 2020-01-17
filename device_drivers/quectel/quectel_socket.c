@@ -172,10 +172,11 @@ rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char *host,
     goto _exit;
   }
   _rt = at_resp_parse_line_args_by_kw(
-      _resp, "+QIURC: \"dnsgip\"", "+QIURC: \"dnsgip\",\"%d.%d.%d.%d\"",
+      _resp, "+QIURC: \"dnsgip\",\"", "+QIURC: \"dnsgip\",\"%d.%d.%d.%d\"",
       _ip, _ip + 1, _ip + 2, _ip + 3);
   if (_rt != 4) {
     _rt = -RT_ERROR;
+    LOG_E("AT+QIDNSGIP=1 parse fail _rt = %d", _rt);
     goto _exit;
   }
 
