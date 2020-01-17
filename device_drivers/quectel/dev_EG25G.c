@@ -79,6 +79,7 @@ int _eg25_set_down(struct netdev *netdev) {
   netdev_low_level_set_status(&eg25_net_info, RT_FALSE);
   return 0;
 }
+
 const struct netdev_ops eg25_netdev_ops = {
     _eg25_set_up, _eg25_set_down, RT_NULL,       RT_NULL,
     RT_NULL,      _eg25_ping,     _eg25_netstat,
@@ -160,30 +161,35 @@ static void eg25_thread_entry(void *parameter) {
         _rt = qs_set_context(eg25g_item.qs_t);
         if (RT_EOK != _rt) {
           rt_event_send(&eg25_event, EVENT_EG25G_RESET);
+          goto _wait_reset;
         } else {
-          _rt = netdev_read_ip();
-          if (RT_EOK != _rt) {
-            LOG_W("read ipadder fail");
-          }
-          _rt = net_read_dns();
-          if (RT_EOK != _rt) {
-            LOG_W("read ipadder fail");
-          }
           netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
         }
       } else {
         netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
       }
     }
+ 
+    // check ip ,dns config
+    if (!netdev_ip_is_set(&eg25_net_info)) {
+      _rt = netdev_read_ip();
+      if (RT_EOK != _rt) {
+        LOG_W("read ipadder fail");
+      }
+      _rt = net_read_dns();
+      if (RT_EOK != _rt) {
+        LOG_W("read ipadder fail");
+      }
+    }
 
     // check reset event
+  _wait_reset:
     _rt = rt_event_recv(_event_t, EVENT_EG25G_RESET,
                         RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                         rt_tick_from_millisecond(5000), &_recv);
     if ((RT_EOK != _rt) && ((-RT_ETIMEOUT) != _rt)) {
       LOG_E("file:%s,line:%d _rt = %d", __FILE__, __LINE__, _rt);
     }
-
     if (_recv & EVENT_EG25G_RESET) {
       do {
         _rt = _moudle_reset();

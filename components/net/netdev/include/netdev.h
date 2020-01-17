@@ -153,6 +153,8 @@ int netdev_dhcp_enabled(struct netdev *netdev, rt_bool_t is_enabled);
 #define netdev_is_link_up(netdev) (((netdev)->flags & NETDEV_FLAG_LINK_UP) ? (uint8_t)1 : (uint8_t)0)
 #define netdev_is_internet_up(netdev) (((netdev)->flags & NETDEV_FLAG_INTERNET_UP) ? (uint8_t)1 : (uint8_t)0)
 #define netdev_is_dhcp_enabled(netdev) (((netdev)->flags & NETDEV_FLAG_DHCP) ? (uint8_t)1 : (uint8_t)0)
+#define netdev_ip_is_set(netdev) ((netdev)->ip_addr.addr ? (uint8_t)1 : (uint8_t)0 )
+#define netdev_dns_is_set(netdev ,mun) ((uint32_t)(((netdev)->dns_servers)[mun].addr? (uint8_t)1 : (uint8_t)0 ))
 
 /* Set network interface device address */
 int netdev_set_ipaddr(struct netdev *netdev, const ip_addr_t *ipaddr);
