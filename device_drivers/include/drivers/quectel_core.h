@@ -56,7 +56,7 @@ void qc_reset_off(quectel_core_t self);
 void qc_reset_on(quectel_core_t self);
 void qc_powerkey_off(quectel_core_t self);
 void qc_powerkey_on(quectel_core_t self);
-rt_err_t qc_check_link(quectel_core_t self);
+rt_err_t qc_check_link(quectel_core_t self,rt_uint32_t timeout);
 at_client_t qc_take_cmd_client(quectel_core_t self);
 void qc_release_cmd_client(quectel_core_t self);
 void qc_set_urc_table(quectel_core_t self, const struct at_urc *table,

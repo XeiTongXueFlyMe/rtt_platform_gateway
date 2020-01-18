@@ -720,7 +720,6 @@ static void client_parser(at_client_t client)
                 }
                  
                 client->resp = RT_NULL;
-                client->resp->current_buf_len = 0;
                 rt_sem_release(client->resp_notice);
             }
             else

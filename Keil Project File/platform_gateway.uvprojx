@@ -398,29 +398,44 @@
               <FilePath>..\applications\config.h</FilePath>
             </File>
             <File>
+              <FileName>common_cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\common_app\common_cmd.c</FilePath>
+            </File>
+            <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\led.c</FilePath>
+              <FilePath>..\applications\common_app\led.c</FilePath>
             </File>
             <File>
               <FileName>ulog.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\ulog.c</FilePath>
+              <FilePath>..\applications\common_app\ulog.c</FilePath>
             </File>
             <File>
               <FileName>wdg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\wdg.c</FilePath>
+              <FilePath>..\applications\common_app\wdg.c</FilePath>
             </File>
             <File>
-              <FileName>common_cmd.c</FileName>
+              <FileName>net_dtu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\common_cmd.c</FilePath>
+              <FilePath>..\applications\net_impl\net_dtu.c</FilePath>
+            </File>
+            <File>
+              <FileName>net_impl_factory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\net_impl\net_impl_factory.c</FilePath>
+            </File>
+            <File>
+              <FileName>net_messges_parser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\applications\net_impl\net_messges_parser.c</FilePath>
             </File>
             <File>
               <FileName>rf_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\applications\rf_utils.c</FilePath>
+              <FilePath>..\applications\rf_impl\rf_utils.c</FilePath>
             </File>
           </Files>
         </Group>

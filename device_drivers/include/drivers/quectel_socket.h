@@ -37,6 +37,7 @@ quectel_socket_t new_quectel_socket(quectel_core_t _core);
 rt_err_t qs_read_csq(quectel_socket_t _socket, rt_uint8_t* csq);
 rt_err_t qs_set_context(quectel_socket_t _socket);
 rt_err_t qs_read_context_ip(quectel_socket_t _socket, quectel_ip_addr ip_adder);
+rt_err_t qc_printf_netstat(quectel_socket_t _socket);
 rt_err_t qs_read_context_dns(quectel_socket_t _socket, quectel_dns_addr dns_1,
                              quectel_dns_addr dns_2);
 rt_err_t qs_ping(quectel_socket_t _socket, const char* host, uint32_t timeout,
@@ -52,22 +53,32 @@ rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char* host,
 
 void urc_ping_cb(const char* data, rt_size_t size);
 void urc_socket_close_cb(const char* data, rt_size_t size);
-void urc_socket_recv_cb(const char *data, rt_size_t size);
+void urc_socket_recv_cb(const char* data, rt_size_t size);
+void urc_socket_state_cb(const char* data, rt_size_t size);
 
-#define SOCKET_URC_TABLE                                    \
-  {                                                         \
-      .cmd_prefix = "+QPING:",                              \
-      .cmd_suffix = "\r\n",                                 \
-      .func = urc_ping_cb,                                  \
-  },                                                        \
-      {                                                     \
-          .cmd_prefix = "+QIURC: \"closed\"",               \
-          .cmd_suffix = "\r\n",                             \
-          .func = urc_socket_close_cb,                      \
-      },                                                    \
-  {                                                         \
-    .cmd_prefix = "+QIURC: \"recv\"", .cmd_suffix = "\r\n", \
-    .func = urc_socket_recv_cb,                             \
+#define SOCKET_URC_TABLE                                               \
+  {                                                                    \
+      .cmd_prefix = "+QPING:",                                         \
+      .cmd_suffix = "\r\n",                                            \
+      .func = urc_ping_cb,                                             \
+  },                                                                   \
+      {                                                                \
+          .cmd_prefix = "+QIURC: \"closed\"",                          \
+          .cmd_suffix = "\r\n",                                        \
+          .func = urc_socket_close_cb,                                 \
+      },                                                               \
+      {                                                                \
+          .cmd_prefix = "+QIURC: \"recv\"",                            \
+          .cmd_suffix = "\r\n",                                        \
+          .func = urc_socket_recv_cb,                                  \
+      },                                                               \
+      {                                                                \
+          .cmd_prefix = "+QISTATE: ",                                  \
+          .cmd_suffix = "\r\n",                                        \
+          .func = urc_socket_state_cb,                                 \
+      },                                                               \
+  {                                                                    \
+    .cmd_prefix = "AT+QISTATE", .cmd_suffix = "\r\n", .func = RT_NULL, \
   }
 
 #endif
