@@ -516,7 +516,7 @@ void urc_socket_recv_cb(const char *data, rt_size_t size) {
   }
 
   _recv_len =
-      at_client_obj_recv(socket_item_t->_core->at_client, _buf, _len, 200);
+      at_client_obj_recv(socket_item_t->_core->at_client, _buf, _len, 10);
   if (_recv_len != _len) {
     LOG_E("file:%s,line:%d Invalid receive _len = %d _recv_len = %d", __FILE__,
           __LINE__, _len, _recv_len);
