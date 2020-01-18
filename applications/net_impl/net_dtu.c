@@ -100,11 +100,9 @@ _exit:
   return -RT_ERROR;
 }
 
-// TODO：与服务器的心跳维护,网络灯
-// TODO：收发数据
-// TODO：网卡切换与网卡状态更新
-void net_dtu_thread_entry(void *parameter) {
-  net_dtu_item_t = new_net_dtu();
+// TODO 监听网络数据
+// 因该是一个动态的线程
+void net_dtu_wait_recv(void *parameter) {
 
   while (1) {
     //等待一个事件
@@ -113,11 +111,26 @@ void net_dtu_thread_entry(void *parameter) {
   }
 }
 
+// TODO：与服务器的心跳维护,网络灯
+// TODO：网卡切换与网卡状态更新
+void net_heart_and_netdev_select(void *parameter) {
+  et_dtu_item_t = new_net_dtu();
+  
+  while (1) {
+    rt_thread_mdelay(1000);
+  }
+}
+
 int dtu_thread_init(void) {
   static rt_thread_t _tid = RT_NULL;
 
-  _tid = rt_thread_create("net_dtu", net_dtu_thread_entry, RT_NULL, 1024,
+  _tid = rt_thread_create("dtu_recv", net_dtu_wait_recv, RT_NULL, 1024,
                           RT_THREAD_PRIORITY_MAX / 3, 20);
+  RT_ASSERT(_tid != RT_NULL);
+  rt_thread_startup(_tid);
+
+  _tid = rt_thread_create("dtu_heart", net_heart_and_netdev_select, RT_NULL,
+                          1024, RT_THREAD_PRIORITY_MAX / 2, 20);
   RT_ASSERT(_tid != RT_NULL);
   rt_thread_startup(_tid);
 
