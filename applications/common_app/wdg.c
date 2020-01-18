@@ -1,5 +1,4 @@
 #include <rtdevice.h>
-#include <rtthread.h>
 
 #ifdef USE_DRV_XWATCHDOG
 #define XWDT_DEVICXE_NAME "xwdg"

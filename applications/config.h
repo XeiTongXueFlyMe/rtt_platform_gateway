@@ -5,6 +5,12 @@
 //#define UNIT_TEST
 #define ULOG_OUTPUT_LVL LOG_LVL_DBG
 
+/*============= gateway config ================*/
+#define SERVER_ADDER_URL "iot.elitesemicon.com.cn"
+
+
+
+/*============= device drivers =============*/
 #define USE_APP_RF
 #define USE_DRV_USART
 #define USE_DRV_GPIO_LED
