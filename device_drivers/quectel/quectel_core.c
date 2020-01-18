@@ -59,8 +59,8 @@ void qc_turn_on(quectel_core_t self) {
 }
 
 //检查数据链路层是否OK
-rt_err_t qc_check_link(quectel_core_t self) {
-  return (rt_err_t)at_client_obj_wait_connect(self->at_client, 30000);
+rt_err_t qc_check_link(quectel_core_t self,rt_uint32_t timeout) {
+  return (rt_err_t)at_client_obj_wait_connect(self->at_client, timeout);
 }
 
 at_client_t qc_take_cmd_client(quectel_core_t self) {

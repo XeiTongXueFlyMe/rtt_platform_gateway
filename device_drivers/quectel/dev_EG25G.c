@@ -100,9 +100,7 @@ int eg25_domain_resolve(const char *host, char ip[16]) {
 }
 
 //不对这个函数实现，直接在quectel_socket中处理 接收，和关闭
-void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { 
-  return;
-}
+void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { return; }
 
 struct netdev eg25_net_info;
 static const struct at_device_ops at_device = {
@@ -114,6 +112,11 @@ int _eg25_ping(struct netdev *netdev, const char *host, size_t data_len,
                uint32_t timeout, struct netdev_ping_resp *ping_resp) {
   rt_err_t _rt = RT_EOK;
   struct quectel_ping_resp _ping_resp;
+
+  if (!netdev_is_link_up(netdev)) {
+    LOG_I("netdev no link,Please try again later");
+    return RT_ERROR;
+  }
 
   _rt = qs_ping(eg25g_item.qs_t, host, timeout, &_ping_resp);
   if (_rt != RT_EOK) {
@@ -132,9 +135,16 @@ _exit:
 
 // no _eg25_set_dns_server  _eg25_set_dhcp _eg25_set_addr_info
 void _eg25_netstat(struct netdev *netdev) {
-  // TODO:打印网卡状态，连接参数等，用于网络调试
-  rt_kprintf("\r\n开发中...\r\n");
-  // AT+QISTATE?  返回现存所有连接状态
+  if (!netdev_is_link_up(netdev)) {
+    LOG_I("netdev no link,Please try again later");
+    return;
+  }
+  rt_err_t _rt = RT_EOK;
+  _rt = qc_printf_netstat(eg25g_item.qs_t);
+  if (RT_EOK != _rt) {
+    LOG_E("netstat fail");
+  }
+
   return;
 }
 int _eg25_set_up(struct netdev *netdev) {
@@ -171,12 +181,12 @@ static rt_err_t _moudle_reset(void) {
   rt_thread_mdelay(2000);
   qc_powerkey_on(eg25g_item.qc_t);
   rt_thread_mdelay(1000);
-  netdev_low_level_set_status(&eg25_net_info, RT_TRUE);
 
   _rt = qs_set_context(eg25g_item.qs_t);
   if (RT_EOK != _rt) {
     goto _exit;
   }
+  netdev_low_level_set_status(&eg25_net_info, RT_TRUE);
 
 _exit:
   return _rt;
@@ -219,6 +229,14 @@ static void eg25_thread_entry(void *parameter) {
 
   rt_event_init(_event_t, "drv_eg25", RT_IPC_FLAG_FIFO);
 
+  _rt = qc_check_link(eg25g_item.qc_t, 300);
+  if (RT_EOK != _rt) {
+    rt_event_send(&eg25_event, EVENT_EG25G_RESET);
+    goto _wait_reset;
+  } else {
+    netdev_low_level_set_status(&eg25_net_info, RT_TRUE);
+  }
+
   while (1) {
     // check net is close
     if (netdev_is_up(&eg25_net_info)) {
@@ -232,12 +250,9 @@ static void eg25_thread_entry(void *parameter) {
         if (RT_EOK != _rt) {
           rt_event_send(&eg25_event, EVENT_EG25G_RESET);
           goto _wait_reset;
-        } else {
-          netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
         }
-      } else {
-        netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
       }
+      netdev_low_level_set_link_status(&eg25_net_info, RT_TRUE);
     }
 
     // check ip ,dns config
@@ -303,8 +318,6 @@ rt_err_t rt_hw_eg25g_register(char *name, const char *dev_uart_name,
   eg25_net_info.ops = &eg25_netdev_ops;
   _rt = netdev_register(&eg25_net_info, name, RT_NULL);
   RT_ASSERT(0 == _rt);
-
-  netdev_low_level_set_status(&eg25_net_info, RT_TRUE);
 
   eg25_thread_init(name);
   return _rt;

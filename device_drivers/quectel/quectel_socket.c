@@ -50,7 +50,7 @@ quectel_socket_t new_quectel_socket(quectel_core_t _core) {
 // 设置网络场景
 rt_err_t qs_set_context(quectel_socket_t _socket) {
   rt_err_t _rt = RT_EOK;
-  _rt = qc_check_link(_socket->_core);
+  _rt = qc_check_link(_socket->_core, 30000);
   if (RT_EOK != _rt) {
     LOG_W("check link fail return %d", _rt);
     goto _exit;
@@ -185,7 +185,7 @@ rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char *host,
   rt_int32_t _ip[4];
 
   _clinet = qc_take_cmd_client(_socket->_core);
-  _resp = at_create_resp(180, 5, rt_tick_from_millisecond(1000));
+  _resp = at_create_resp(180, 5, rt_tick_from_millisecond(2000));
   if (_resp == RT_NULL) {
     LOG_E("No memory for response object!");
     _rt = -RT_ENOMEM;
@@ -331,7 +331,8 @@ rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char *type,
     _rt = -RT_ERROR;
     goto _exit;
   }
-  if ((_s == socket) && (_result == 0)) {
+
+  if (!((_s == socket) && (_result == 0))) {
     LOG_W("open %s:%s fail: socket = %d,result= %d", type, ip, _s, _result);
     _rt = -RT_ERROR;
     goto _exit;
@@ -434,6 +435,26 @@ _exit:
   return _rt;
 }
 
+rt_err_t qc_printf_netstat(quectel_socket_t _socket) {
+  rt_err_t _len = RT_NULL;
+  at_client_t _clinet = RT_NULL;
+
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _len =
+      at_client_obj_send(_clinet, "AT+QISTATE\r\n", sizeof("AT+QISTATE\r\n"));
+  if (RT_NULL == _len) {
+    LOG_E("file:%s,line:%d return %d", __FILE__, __LINE__);
+    goto _exit;
+  }
+
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  qc_release_cmd_client(_socket->_core);
+  return -RT_ERROR;
+}
+
 static int _get_matches(const char *str, const char *format, ...) {
   int _parse_num = 0;
   va_list args;
@@ -527,4 +548,8 @@ void urc_socket_recv_cb(const char *data, rt_size_t size) {
   at_recv_notice_cb(_socket, AT_SOCKET_EVT_RECV, _buf, _len);
 }
 
+void urc_socket_state_cb(const char *data, rt_size_t size) {
+  //去除 "+QISTATE: " => 10
+  rt_kprintf("\r%.*s", size - 10, data + 10);
+}
 #endif
