@@ -8,6 +8,7 @@
  * 2020-01-15     xieming      first version.
  */
 
+#include <at_socket.h>
 #include <rtdevice.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,36 +23,28 @@
 // FIXME:由于at_client组件的回调机制
 struct rt_mailbox *mb_ping_t;
 struct rt_mailbox *mb_recv_t;
+static quectel_socket_t socket_item_t = RT_NULL;
 
 quectel_socket_t new_quectel_socket(quectel_core_t _core) {
   rt_err_t _rt = RT_EOK;
-  quectel_socket_t _socket = RT_NULL;
 
   RT_ASSERT(_core != RT_NULL);
-  _socket = rt_calloc(1, sizeof(struct quectel_socket));
-  RT_ASSERT(_socket != RT_NULL);
+  socket_item_t = rt_calloc(1, sizeof(struct quectel_socket));
+  RT_ASSERT(socket_item_t != RT_NULL);
 
-  _socket->_core = _core;
+  socket_item_t->_core = _core;
 
   /* 初始化一个mailbox */
-  _rt =
-      rt_mb_init(&(_socket->mb_ping), "mb_ping", _socket->mb_ping_pool,
-                 sizeof(_socket->mb_ping_pool) /
-                     4, /* 大小是mb_pool大小除以4，因为一封邮件的大小是4字节 */
-                 RT_IPC_FLAG_FIFO); /* 采用FIFO方式进行线程等待 */
+  _rt = rt_mb_init(
+      &(socket_item_t->mb_ping), "mb_ping", socket_item_t->mb_ping_pool,
+      sizeof(socket_item_t->mb_ping_pool) /
+          4, /* 大小是mb_pool大小除以4，因为一封邮件的大小是4字节 */
+      RT_IPC_FLAG_FIFO); /* 采用FIFO方式进行线程等待 */
   RT_ASSERT(RT_EOK == _rt);
 
-  _rt =
-      rt_mb_init(&(_socket->mb_recv), "mb_ping", _socket->mb_recv_pool,
-                 sizeof(_socket->mb_recv_pool) /
-                     4, /* 大小是mb_pool大小除以4，因为一封邮件的大小是4字节 */
-                 RT_IPC_FLAG_FIFO); /* 采用FIFO方式进行线程等待 */
-  RT_ASSERT(RT_EOK == _rt);
+  mb_ping_t = &socket_item_t->mb_ping;
 
-  mb_ping_t = &_socket->mb_ping;
-  mb_recv_t = &_socket->mb_recv;
-
-  return _socket;
+  return socket_item_t;
 }
 
 // 设置网络场景
@@ -147,10 +140,43 @@ _exit:
   return _rt;
 }
 
-// closesocket
-// set_recv_cb 分socket链接号
+rt_err_t qs_close_scocket(quectel_socket_t _socket, rt_int32_t socket,
+                          rt_uint8_t timeout) {
+  rt_err_t _rt = RT_EOK;
+  at_response_t _resp = RT_NULL;
+  at_client_t _clinet = RT_NULL;
 
-//TODO :bug
+  _clinet = qc_take_cmd_client(_socket->_core);
+  _resp = at_create_resp(16, 1, rt_tick_from_millisecond(timeout * 1000));
+  if (_resp == RT_NULL) {
+    LOG_E("No memory for response object!");
+    _rt = -RT_ENOMEM;
+    goto _exit;
+  }
+
+  _rt =
+      at_obj_exec_cmd(_clinet, _resp, "AT+QICLOSE=%d,%d\r\n", socket, timeout);
+  if (RT_EOK != _rt) {
+    LOG_W("AT+QICLOSE=%d,%d _rt = %d", socket, timeout, _rt);
+    goto _exit;
+  }
+
+  if (RT_NULL == at_resp_get_line_by_kw(_resp, "OK")) {
+    LOG_W("close socket %d fail", socket);
+    goto _exit;
+  }
+
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return RT_EOK;
+
+_exit:
+  at_delete_resp(_resp);
+  qc_release_cmd_client(_socket->_core);
+  return _rt;
+}
+
+// set_recv_cb 分socket链接号
 rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char *host,
                            quectel_ip_addr ip_adder) {
   rt_err_t _rt = RT_EOK;
@@ -171,9 +197,9 @@ rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char *host,
     LOG_E("AT+QIDNSGIP=1,\"%s\" _rt = %d", host, _rt);
     goto _exit;
   }
-  _rt = at_resp_parse_line_args_by_kw(
-      _resp, "+QIURC: \"dnsgip\",\"", "+QIURC: \"dnsgip\",\"%d.%d.%d.%d\"",
-      _ip, _ip + 1, _ip + 2, _ip + 3);
+  _rt = at_resp_parse_line_args_by_kw(_resp, "+QIURC: \"dnsgip\",\"",
+                                      "+QIURC: \"dnsgip\",\"%d.%d.%d.%d\"", _ip,
+                                      _ip + 1, _ip + 2, _ip + 3);
   if (_rt != 4) {
     _rt = -RT_ERROR;
     LOG_E("AT+QIDNSGIP=1 parse fail _rt = %d", _rt);
@@ -194,9 +220,6 @@ _exit:
   return _rt;
 }
 
-// rt_err_t qs_netstat(quectel_socket_t _socket) {
-
-// }
 rt_err_t qs_read_csq(quectel_socket_t _socket, rt_uint8_t *csq) {
   rt_err_t _rt = RT_EOK;
   at_response_t _resp = RT_NULL;
@@ -460,6 +483,48 @@ void urc_ping_cb(const char *data, rt_size_t size) {
 
 _exit:
   return;
+}
+
+void urc_socket_close_cb(const char *data, rt_size_t size) {
+  rt_int32_t _socket = 0;
+  int _parse_num = 0;
+
+  _parse_num = _get_matches(data, "+QIURC: \"closed\",%d", &_socket);
+  if ((_parse_num != 1)) {
+    LOG_E("+QIURC: \"closed\" matches fail");
+    return;
+  }
+
+  at_closed_notice_cb(_socket, AT_SOCKET_EVT_CLOSED, RT_NULL, 0);
+}
+
+void urc_socket_recv_cb(const char *data, rt_size_t size) {
+  rt_int32_t _socket = 0;
+  rt_int32_t _len = 0;
+  rt_int32_t _recv_len = 0;
+  char *_buf = RT_NULL;
+  int _parse_num = 0;
+
+  _parse_num = _get_matches(data, "+QIURC: \"recv\",%d", &_socket, &_len);
+  if ((_parse_num != 2) || (_len == 0)) {
+    LOG_E("+QIURC: \"recv\" matches fail");
+    return;
+  }
+  _buf = rt_calloc(1, _len);
+  if (_buf == RT_NULL) {
+    LOG_E("file:%s,line:%d No %d bit memory", __FILE__, __LINE__, _len);
+  }
+
+  _recv_len =
+      at_client_obj_recv(socket_item_t->_core->at_client, _buf, _len, 200);
+  if (_recv_len != _len) {
+    LOG_E("file:%s,line:%d Invalid receive _len = %d _recv_len = %d", __FILE__,
+          __LINE__, _len, _recv_len);
+    rt_free(_buf);
+    return;
+  }
+
+  at_recv_notice_cb(_socket, AT_SOCKET_EVT_RECV, _buf, _len);
 }
 
 #endif

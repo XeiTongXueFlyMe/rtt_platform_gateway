@@ -725,7 +725,7 @@ static void client_parser(at_client_t client)
             }
             else
             {
-                LOG_W("unrecognized line: %.*s", client->cur_recv_len, client->recv_buffer);
+                LOG_I("unrecognized line: %.*s", client->cur_recv_len, client->recv_buffer);
             }
         }
     }

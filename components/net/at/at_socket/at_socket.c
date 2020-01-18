@@ -491,7 +491,7 @@ static int ipaddr_to_ipstr(const struct sockaddr *sockaddr, char *ipstr)
     return 0;
 }
 
-static void at_recv_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz)
+void at_recv_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz)
 {
     struct at_socket *sock;
 
@@ -500,9 +500,11 @@ static void at_recv_notice_cb(int socket, at_socket_evt_t event, const char *buf
     RT_ASSERT(event == AT_SOCKET_EVT_RECV);
 
     sock = at_get_socket(socket);
-    if (sock == RT_NULL)
+    if (sock == RT_NULL){
+        rt_free((void *)buff);
         return ;
-
+    }
+        
     /* put receive buffer to receiver packet list */
     rt_mutex_take(sock->recv_lock, RT_WAITING_FOREVER);
     at_recvpkt_put(&(sock->recvpkt_list), buff, bfsz);
@@ -513,7 +515,7 @@ static void at_recv_notice_cb(int socket, at_socket_evt_t event, const char *buf
     at_do_event_changes(sock, AT_EVENT_RECV, RT_TRUE);
 }
 
-static void at_closed_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz)
+void at_closed_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz)
 {
     struct at_socket *sock;
 

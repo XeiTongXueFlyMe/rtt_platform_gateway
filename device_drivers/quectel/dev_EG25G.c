@@ -66,7 +66,11 @@ int eg25_connect(int socket, char *ip, int32_t port, enum at_socket_type type,
 
   return RT_EOK;
 }
-int eg25_closesocket(int socket) { return 0; }
+
+int eg25_closesocket(int socket) {
+  //官方建议超时时间 10s
+  return qs_close_scocket(eg25g_item.qs_t, socket, 10);
+}
 
 int eg25_send(int socket, const char *buff, size_t bfsz,
               enum at_socket_type type) {
@@ -81,8 +85,24 @@ int eg25_send(int socket, const char *buff, size_t bfsz,
 }
 
 //域名解析
-int eg25_domain_resolve(const char *name, char ip[16]) { return 0; }
-void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { return; }
+int eg25_domain_resolve(const char *host, char ip[16]) {
+  rt_err_t _rt = RT_EOK;
+  quectel_ip_addr ip_adder;
+  char *_ip = RT_NULL;
+  _rt = qs_domain_resolve(eg25g_item.qs_t, host, ip_adder);
+  if (RT_EOK != _rt) {
+    return -RT_ERROR;
+  }
+  _ip = inet_ntoa(*ip_adder);
+  rt_memcpy(ip, _ip, 16);
+
+  return RT_EOK;
+}
+
+//不对这个函数实现，直接在quectel_socket中处理 接收，和关闭
+void eg25_set_event_cb(at_socket_evt_t event, at_evt_cb_t cb) { 
+  return;
+}
 
 struct netdev eg25_net_info;
 static const struct at_device_ops at_device = {
@@ -206,7 +226,7 @@ static void eg25_thread_entry(void *parameter) {
       _rt = qc_send_cmd_parse_recv(eg25g_item.qc_t, 1000, 300,
                                    "+QIACT: ", "+QIACT: ", "AT+QIACT?\r\n");
       if (RT_EOK != _rt) {
-        LOG_W("reset context because no find +QIACT:");
+        LOG_W("reset context because AT+QIACT? timeout");
         netdev_low_level_set_link_status(&eg25_net_info, RT_FALSE);
         _rt = qs_set_context(eg25g_item.qs_t);
         if (RT_EOK != _rt) {
@@ -299,12 +319,9 @@ int eg25(int argc, char **argv) {
   if (argc == 1) {
     qs_read_csq(eg25g_item.qs_t, &_csq);
     LOG_I("_csq = %d", _csq);
-    qs_domain_resolve(eg25g_item.qs_t, "www.baidu.com", ipadder);
-    LOG_I("www.baidu.com : %d.%d.%d.%d", ipadder[0], ipadder[1], ipadder[2],
-          ipadder[3]);
-    qs_domain_resolve(eg25g_item.qs_t, "www.sina.com.cn", ipadder);
-    LOG_I("www.sina.com.cn : %d.%d.%d.%d", ipadder[0], ipadder[1], ipadder[2],
-          ipadder[3]);
+    qs_domain_resolve(eg25g_item.qs_t, "iot.elitesemicon.com.cn", ipadder);
+    LOG_I("iot.elitesemicon.com.cn : %d.%d.%d.%d", ipadder[0], ipadder[1],
+          ipadder[2], ipadder[3]);
     goto _return;
   }
 

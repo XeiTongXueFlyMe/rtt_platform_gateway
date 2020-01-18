@@ -130,6 +130,8 @@ void at_freeaddrinfo(struct addrinfo *ai);
 
 struct at_socket *at_get_socket(int socket);
 void at_socket_device_register(const struct at_device_ops *ops);
+void at_recv_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz);
+void at_closed_notice_cb(int socket, at_socket_evt_t event, const char *buff, size_t bfsz);
 
 #ifndef RT_USING_SAL
 

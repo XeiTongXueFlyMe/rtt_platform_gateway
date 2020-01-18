@@ -28,10 +28,7 @@ struct quectel_socket {
   quectel_core_t _core;
 
   struct rt_mailbox mb_ping;
-  struct rt_mailbox mb_recv;
-
   char mb_ping_pool[8];
-  char mb_recv_pool[80];
 };
 
 typedef struct quectel_socket* quectel_socket_t;
@@ -46,14 +43,31 @@ rt_err_t qs_ping(quectel_socket_t _socket, const char* host, uint32_t timeout,
                  struct quectel_ping_resp* ping_resp);
 rt_err_t qs_connect(quectel_socket_t _socket, rt_int32_t socket, char* type,
                     char* ip, int32_t port);
+rt_err_t qs_close_scocket(quectel_socket_t _socket, rt_int32_t socket,
+                          rt_uint8_t timeout);
 rt_err_t qs_tcp_send(quectel_socket_t _socket, rt_int32_t socket,
                      const char* buff, size_t bfsz);
 rt_err_t qs_domain_resolve(quectel_socket_t _socket, const char* host,
                            quectel_ip_addr ipadder);
 
 void urc_ping_cb(const char* data, rt_size_t size);
+void urc_socket_close_cb(const char* data, rt_size_t size);
+void urc_socket_recv_cb(const char *data, rt_size_t size);
 
-#define SOCKET_URC_TABLE \
-  { .cmd_prefix = "+QPING:", .cmd_suffix = "\r\n", .func = urc_ping_cb, }
+#define SOCKET_URC_TABLE                                    \
+  {                                                         \
+      .cmd_prefix = "+QPING:",                              \
+      .cmd_suffix = "\r\n",                                 \
+      .func = urc_ping_cb,                                  \
+  },                                                        \
+      {                                                     \
+          .cmd_prefix = "+QIURC: \"closed\"",               \
+          .cmd_suffix = "\r\n",                             \
+          .func = urc_socket_close_cb,                      \
+      },                                                    \
+  {                                                         \
+    .cmd_prefix = "+QIURC: \"recv\"", .cmd_suffix = "\r\n", \
+    .func = urc_socket_recv_cb,                             \
+  }
 
 #endif
