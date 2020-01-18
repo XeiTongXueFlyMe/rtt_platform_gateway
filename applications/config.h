@@ -7,6 +7,7 @@
 
 /*============= gateway config ================*/
 #define SERVER_ADDER_URL "iot.elitesemicon.com.cn"
+#define SERVER_ADDER_PORT 8287
 
 
 
