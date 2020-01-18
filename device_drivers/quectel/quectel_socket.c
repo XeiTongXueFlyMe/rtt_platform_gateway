@@ -505,7 +505,7 @@ void urc_socket_recv_cb(const char *data, rt_size_t size) {
   char *_buf = RT_NULL;
   int _parse_num = 0;
 
-  _parse_num = _get_matches(data, "+QIURC: \"recv\",%d", &_socket, &_len);
+  _parse_num = _get_matches(data, "+QIURC: \"recv\",%d,%d", &_socket, &_len);
   if ((_parse_num != 2) || (_len == 0)) {
     LOG_E("+QIURC: \"recv\" matches fail");
     return;
