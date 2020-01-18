@@ -1,7 +1,5 @@
 #include <rtthread.h>
 #include "../drivers/board.h"
-#include "led.h"
-#include "wdg.h"
 
 #ifdef RT_USING_FINSH
 #include <finsh.h>
