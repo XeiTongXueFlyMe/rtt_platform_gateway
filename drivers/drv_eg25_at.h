@@ -5,4 +5,6 @@
 #include <stm32f2xx.h>
 #include "drv_usart1.h"
 
+#define EG25G_DEVICE_NAME "eg25_net"
+
 #endif

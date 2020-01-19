@@ -11,8 +11,6 @@
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
-#define EG25G_DEVICE_NAME "eg25_net"
-
 #define RESET_PORT GPIOC
 #define RESET_PIN GPIO_Pin_9
 #define RESET_RCC RCC_AHB1Periph_GPIOC
