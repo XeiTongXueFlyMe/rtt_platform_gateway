@@ -56,6 +56,7 @@ rt_err_t qs_set_context(quectel_socket_t _socket) {
     goto _exit;
   }
   // 12s来自TCP开发手册
+  // TODO: 当找不到sim卡时,不应该返回错误代码，导致模块一直重启
   _rt = qc_send_cmd_parse_recv(_socket->_core, 12000, 500, "+CPIN: READY",
                                "+CPIN: READY", "AT+CPIN?\r\n");
   if (RT_EOK != _rt) {

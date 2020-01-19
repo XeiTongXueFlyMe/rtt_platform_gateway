@@ -15,6 +15,13 @@ int reboot(void) {
   rt_err_t _rt = RT_EOK;
   rt_device_t _d = RT_NULL;
 
+  /*关闭net_dtu*/
+  _rt = close_link_remote_server();
+  if (RT_EOK != _rt) {
+    LOG_E("close remote server link fail _rt = %d", _rt);
+  }
+
+  /*喂硬件看门狗*/
   _d = rt_device_find(WDT_DEVICE_NAME);
   RT_ASSERT(RT_NULL != _d);
   _rt = rt_device_control(_d, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
