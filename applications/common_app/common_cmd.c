@@ -1,5 +1,6 @@
 // TODO:直接重启，定时重启，每天重启
 #include <stm32f2xx.h>
+#include "../net_impl/net_dtu.h"
 #include "rtdevice.h"
 #include "rtthread.h"
 
