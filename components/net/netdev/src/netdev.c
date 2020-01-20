@@ -838,6 +838,7 @@ static void netdev_list_if(void)
             {
                 rt_kprintf("%02x ", netdev->hwaddr[index]);
             }
+            rt_kprintf("\n");
         }
         else if (netdev->hwaddr_len == NETDEV_IFCONFIG_IEMI_MAX_LEN)
         {
@@ -850,9 +851,10 @@ static void netdev_list_if(void)
                 
                 rt_kprintf("%d", netdev->hwaddr[index]);
             }
+            rt_kprintf("\n");
         }
 
-        rt_kprintf("\nFLAGS:");
+        rt_kprintf("FLAGS:");
         if (netdev->flags & NETDEV_FLAG_UP) rt_kprintf(" UP");
         else rt_kprintf(" DOWN");
         if (netdev->flags & NETDEV_FLAG_LINK_UP) rt_kprintf(" LINK_UP");
