@@ -67,6 +67,7 @@ int netdev_register(struct netdev *netdev, const char *name, void *user_data)
     netdev->addr_callback = RT_NULL;
 
     /* fill network interface device */
+    rt_memset(netdev->name,'\0',RT_NAME_MAX + 1);
     rt_strncpy(netdev->name, name, rt_strlen(name));
     netdev->user_data = user_data;
 

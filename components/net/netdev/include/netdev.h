@@ -74,7 +74,7 @@ struct netdev
 {
     rt_slist_t list; 
     
-    char name[RT_NAME_MAX];                            /* network interface device name */
+    char name[RT_NAME_MAX+1];                            /* network interface device name */
     ip_addr_t ip_addr;                                 /* IP address */
     ip_addr_t netmask;                                 /* subnet mask */
     ip_addr_t gw;                                      /* gateway */

@@ -300,6 +300,8 @@ rt_err_t rt_hw_eg25g_register(char *name, const char *dev_uart_name,
   rt_err_t _rt = RT_NULL;
   at_client_t _at_client = RT_NULL;
 
+  rt_memset(&eg25_net_info, 0, sizeof(struct netdev));
+
   //初始化通信部分
   _rt = at_client_init(dev_uart_name, EG25G_DTU_SIZE);
   RT_ASSERT(RT_NULL == _rt);
