@@ -73,7 +73,7 @@ int finsh_set_prompt(const char * prompt)
 
 const char *finsh_get_prompt()
 {
-#define _MSH_PROMPT "msh "
+#define _MSH_PROMPT "\033[33mmsh \033[0m"
 #define _PROMPT     "finsh "
     static char finsh_prompt[RT_CONSOLEBUF_SIZE + 1] = {0};
 
