@@ -1,4 +1,5 @@
 #include "net_dtu.h"
+#include <jansson.h>
 #include "../../drivers/drv_eg25_at.h"
 
 #define LOG_TAG "net_dtu"
@@ -67,7 +68,46 @@ static rt_err_t _net_dtu_send(net_dtu_t net_dtu, rt_uint8_t *buf,
   return RT_EOK;
 }
 
+static rt_err_t _use_mac_longin_server(int socket) {
+  rt_err_t _rt = RT_EOK;
+  rt_size_t _len = 0;
+  json_t *_json_obj_t = RT_NULL;
+  char *_buf = RT_NULL;
+
+  _json_obj_t = json_object();
+  if (_json_obj_t == RT_NULL) {
+    LOG_W("creat json obj fail");
+    goto _exit;
+  }
+
+  _rt = json_object_set_new(_json_obj_t, "mac",
+                            json_string(get_iot_gateway_mac()));
+  if (_rt != RT_EOK) {
+    LOG_W("json_obj_set_new fail");
+    goto _exit;
+  }
+
+  _buf = json_dumps(_json_obj_t, JSON_PRESERVE_ORDER | JSON_REAL_PRECISION(3));
+  if (_buf == RT_NULL) {
+    LOG_W("json dumps fail");
+    goto _exit;
+  }
+
+  _len = send(socket, _buf, rt_strlen(_buf), 0);
+  if (_len != rt_strlen(_buf)) {
+    LOG_E("dtu send fail bufsz = %d _send_len = %d", rt_strlen(_buf), _len);
+    return -RT_EIO;
+  }
+
+  json_decref(_json_obj_t);
+  return RT_EOK;
+_exit:
+  json_decref(_json_obj_t);
+  return RT_ERROR;
+}
+
 static rt_err_t _net_dtu_link_remote_server(net_dtu_t net_dtu) {
+  rt_err_t _rt = RT_EOK;
   struct sockaddr_in _addr;
   struct hostent *_host = RT_NULL;
 
@@ -107,10 +147,66 @@ static rt_err_t _net_dtu_link_remote_server(net_dtu_t net_dtu) {
     goto _exit;
   }
 
+  /*登录到服务器*/
+  _rt = _use_mac_longin_server(net_dtu->sock);
+  if (_rt != RT_EOK) {
+    goto _exit;
+  }
+
   return RT_EOK;
 
 _exit:
   return -RT_ERROR;
+}
+
+static rt_err_t _send_heart_to_remote(int socket) {
+  rt_err_t _rt = RT_EOK;
+  rt_size_t _len = 0;
+  json_t *_json_obj_t = RT_NULL;
+  char *_buf = RT_NULL;
+
+  _json_obj_t = json_object();
+  if (_json_obj_t == RT_NULL) {
+    LOG_W("creat json obj fail");
+    goto _exit;
+  }
+
+  _rt = json_object_set_new(_json_obj_t, "mac",
+                            json_string(get_iot_gateway_mac()));
+  if (_rt != RT_EOK) {
+    LOG_W("json_obj_set_new fail");
+    goto _exit;
+  }
+  _rt = json_object_set_new(_json_obj_t, "nodes",
+                            json_integer(srpan_nwk_node_count()));
+  if (_rt != RT_EOK) {
+    LOG_W("json_obj_set_new fail");
+    goto _exit;
+  }
+  _rt = json_object_set_new(_json_obj_t, "csq",
+                            json_string(get_iot_gateway_csq()));
+  if (_rt != RT_EOK) {
+    LOG_W("json_obj_set_new fail");
+    goto _exit;
+  }
+
+  _buf = json_dumps(_json_obj_t, JSON_PRESERVE_ORDER | JSON_REAL_PRECISION(3));
+  if (_buf == RT_NULL) {
+    LOG_W("json dumps fail");
+    goto _exit;
+  }
+
+  _len = send(socket, _buf, rt_strlen(_buf), 0);
+  if (_len != rt_strlen(_buf)) {
+    LOG_E("dtu send fail bufsz = %d _send_len = %d", rt_strlen(_buf), _len);
+    return -RT_EIO;
+  }
+
+  json_decref(_json_obj_t);
+  return RT_EOK;
+_exit:
+  json_decref(_json_obj_t);
+  return RT_ERROR;
 }
 
 rt_err_t send_to_remote_server(rt_uint8_t *buf, rt_size_t bufsz) {

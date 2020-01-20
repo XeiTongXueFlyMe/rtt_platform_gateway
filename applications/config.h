@@ -6,10 +6,14 @@
 #define ULOG_OUTPUT_LVL LOG_LVL_DBG
 
 /*============= gateway config ================*/
+//TODO
+#define IOT_GATEWAY_MAC "AFAEB1CAEDE7"
+#define get_iot_gateway_mac() IOT_GATEWAY_MAC
+#define srpan_nwk_node_count() 0
+#define get_iot_gateway_csq() "23"
+
 #define SERVER_ADDER_URL "iot.elitesemicon.com.cn"
 #define SERVER_ADDER_PORT 8287
-
-
 
 /*============= device drivers =============*/
 #define USE_APP_RF
@@ -34,14 +38,14 @@
 #endif
 
 #ifdef HW_USART_USING_UART1
-//FIXME
+// FIXME
 #define AT_DEVICE_SOCKETS_NUM 1
 #define USE_DRV_EG25E
 #endif /*HW_USART_USING_UART1*/
 
 #ifdef HW_USART_USING_UART4
 #define USE_USR_K7
-#endif 
+#endif
 
 /*spi*/
 #ifdef USE_DRV_SPI
