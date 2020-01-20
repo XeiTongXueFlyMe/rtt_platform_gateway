@@ -1,6 +1,7 @@
 #include "net_dtu.h"
 #include <jansson.h>
 #include "../../drivers/drv_eg25_at.h"
+#include "net_messges_parser.h"
 
 #define LOG_TAG "net_dtu"
 #define LOG_LVL LOG_LVL_DBG
@@ -73,6 +74,8 @@ static rt_err_t _use_mac_longin_server(int socket) {
   rt_size_t _len = 0;
   json_t *_json_obj_t = RT_NULL;
   char *_buf = RT_NULL;
+  rt_uint8_t *_mgs_t = RT_NULL;
+  rt_uint16_t _mgs_len = RT_NULL;
 
   _json_obj_t = json_object();
   if (_json_obj_t == RT_NULL) {
@@ -93,17 +96,35 @@ static rt_err_t _use_mac_longin_server(int socket) {
     goto _exit;
   }
 
-  _len = send(socket, _buf, rt_strlen(_buf), 0);
-  if (_len != rt_strlen(_buf)) {
-    LOG_E("dtu send fail bufsz = %d _send_len = %d", rt_strlen(_buf), _len);
-    return -RT_EIO;
+  _rt = messges_encoding((rt_uint8_t *)_buf, rt_strlen(_buf),
+                         GW_LOGIN_SERVER_REQUEST, _mgs_t, &_mgs_len);
+  if (_buf == RT_NULL) {
+    LOG_W("messges encoding fail");
+    goto _exit;
   }
 
   json_decref(_json_obj_t);
+  _len = send(socket, _mgs_t, _mgs_len, 0);
+  if (_len != rt_strlen(_buf)) {
+    LOG_E("dtu send fail bufsz = %d _send_len = %d", _mgs_len, _len);
+    goto _send_fail;
+  }
+
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
   return RT_EOK;
 _exit:
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
   json_decref(_json_obj_t);
   return RT_ERROR;
+_send_fail:
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
+  return RT_EIO;
 }
 
 static rt_err_t _net_dtu_link_remote_server(net_dtu_t net_dtu) {
@@ -164,6 +185,8 @@ static rt_err_t _send_heart_to_remote(int socket) {
   rt_size_t _len = 0;
   json_t *_json_obj_t = RT_NULL;
   char *_buf = RT_NULL;
+  rt_uint8_t *_mgs_t = RT_NULL;
+  rt_uint16_t _mgs_len = RT_NULL;
 
   _json_obj_t = json_object();
   if (_json_obj_t == RT_NULL) {
@@ -196,17 +219,35 @@ static rt_err_t _send_heart_to_remote(int socket) {
     goto _exit;
   }
 
-  _len = send(socket, _buf, rt_strlen(_buf), 0);
-  if (_len != rt_strlen(_buf)) {
-    LOG_E("dtu send fail bufsz = %d _send_len = %d", rt_strlen(_buf), _len);
-    return -RT_EIO;
+  _rt = messges_encoding((rt_uint8_t *)_buf, rt_strlen(_buf),
+                         GW_LOGIN_SERVER_REQUEST, _mgs_t, &_mgs_len);
+  if (_buf == RT_NULL) {
+    LOG_W("messges encoding fail");
+    goto _exit;
   }
 
   json_decref(_json_obj_t);
+  _len = send(socket, _mgs_t, _mgs_len, 0);
+  if (_len != rt_strlen(_buf)) {
+    LOG_E("dtu send fail bufsz = %d _send_len = %d", _mgs_len, _len);
+    goto _send_fail;
+  }
+
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
   return RT_EOK;
 _exit:
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
   json_decref(_json_obj_t);
   return RT_ERROR;
+_send_fail:
+  if (_mgs_t != RT_NULL) {
+    rt_free(_mgs_t);
+  }
+  return RT_EIO;
 }
 
 rt_err_t send_to_remote_server(rt_uint8_t *buf, rt_size_t bufsz) {
