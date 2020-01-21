@@ -797,6 +797,27 @@ void netdev_low_level_set_dhcp_status(struct netdev *netdev, rt_bool_t is_enable
     }
 }
 
+void netdev_set_internet_status(struct netdev *netdev, rt_bool_t is_enable)
+{
+    if (netdev && netdev_is_dhcp_enabled(netdev) != is_enable)
+    {
+        if (is_enable)
+        {
+            netdev->flags |= NETDEV_FLAG_INTERNET_UP;
+        }
+        else
+        {
+            netdev->flags &= ~NETDEV_FLAG_INTERNET_UP;
+        }
+
+        /* execute DHCP status change callback function */
+        if (netdev->status_callback)
+        {
+            netdev->status_callback(netdev, is_enable ? NETDEV_CB_STATUS_DHCP_ENABLE : NETDEV_CB_STATUS_DHCP_DISABLE);
+        }
+    }
+}
+
 #ifdef FINSH_USING_MSH
 
 #include <finsh.h>
