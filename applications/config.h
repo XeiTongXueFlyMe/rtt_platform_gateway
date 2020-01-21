@@ -6,7 +6,7 @@
 #define ULOG_OUTPUT_LVL LOG_LVL_DBG
 
 /*============= gateway config ================*/
-//TODO
+// TODO
 #define IOT_GATEWAY_MAC "AFAEB1CAEDE7"
 #define get_iot_gateway_mac() IOT_GATEWAY_MAC
 #define srpan_nwk_node_count() 0
@@ -14,6 +14,7 @@
 
 #define SERVER_ADDER_URL "iot.elitesemicon.com.cn"
 #define SERVER_ADDER_PORT 8287
+#define HEART_TIMER_OUT 30000 // ms
 
 /*============= device drivers =============*/
 #define USE_APP_RF

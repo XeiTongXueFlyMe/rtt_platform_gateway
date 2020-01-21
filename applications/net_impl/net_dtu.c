@@ -4,12 +4,11 @@
 #include "net_messges_parser.h"
 
 #define LOG_TAG "net_dtu"
-#define LOG_LVL LOG_LVL_DBG
+#define LOG_LVL LOG_LVL_DBGCHECK
 #include <ulog.h>
 
-#define EVENT_NETDEV_CHANGE_WIRED (1 << 0)     //有线网卡
-#define EVENT_NETDEV_CHANGE_WIRELESS (1 << 1)  //无线网卡
-#define EVENT_NETDEV_HEART (1 << 2)            //网络心跳数据
+#define EVENT_NETDEV_CHECK (1 << 0)  //检查网卡
+#define EVENT_NETDEV_HEART (1 << 1)  //网络心跳数据
 #define EVENT_NETDEV_ALL 0xffffffff
 
 struct net_dtu {
@@ -17,9 +16,9 @@ struct net_dtu {
   int sock;
 };
 typedef struct net_dtu *net_dtu_t;
-struct rt_event net_dtu_event;
-
 static net_dtu_t net_dtu_item_t = RT_NULL;
+static rt_event_t net_dtu_event = RT_NULL;
+static rt_timer_t heart_timer_t = RT_NULL;
 
 static net_dtu_t _new_net_dtu(void) {
   net_dtu_t _net_dtu = RT_NULL;
@@ -63,6 +62,7 @@ static rt_err_t _net_dtu_send(net_dtu_t net_dtu, rt_uint8_t *buf,
   _len = send(net_dtu->sock, buf, bufsz, 0);
   if (_len != bufsz) {
     LOG_E("dtu send fail bufsz = %d _send_len = %d", bufsz, _len);
+    rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
     return -RT_EIO;
   }
 
@@ -265,15 +265,12 @@ void netdev_status_change(struct netdev *netdev, enum netdev_cb_type type) {
   if (type != NETDEV_CB_STATUS_LINK_UP) {
     return;
   }
-  if (RT_NULL ==
-      rt_strncmp(netdev->name, EG25G_DEVICE_NAME, rt_strlen(netdev->name))) {
-    rt_event_send(&net_dtu_event, EVENT_NETDEV_CHANGE_WIRELESS);
-  }
-  // TODO
+  rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
 }
 
 // TODO:优先选择有线连接,其次选择无线网络
 // 本函数在网卡状态发生变化时回调
+// TODO：必须保证百分之百的网卡选择成功
 static rt_err_t _net_dtu_netdev_select(net_dtu_t net_dtu) {
   rt_err_t _rt = RT_EOK;
   struct netdev *_netdev_t = RT_NULL;
@@ -314,6 +311,13 @@ _exit:
 // TODO 监听网络数据
 // 因该是一个动态的线程
 void net_dtu_wait_recv(void *parameter) {
+  if (!SET_NETDEV_IS_OK(net_dtu_item_t)) {
+    // return -NET_DTU_ERR_NO_NETDEV;
+  }
+  if (!SOCKET_LINK_IS_OK(net_dtu_item_t)) {
+    //  return -NET_DTU_ERR_NO_LINK;
+  }
+
   while (1) {
     //等待一个事件
 
@@ -342,31 +346,59 @@ static void _delete_dtu_recv_t() {
   _dtu_recv_tid = RT_NULL;
 }
 
+static void _heart_timeout(void *parameter) {
+  LOG_W("heart timeout:%dms", HEART_TIMER_OUT);
+  rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
+}
+
+static void _creat_heart_timer(void) {
+  rt_err_t _rt = RT_EOK;
+
+  heart_timer_t = rt_timer_create("heart_timer", _heart_timeout, RT_NULL,
+                                  rt_tick_from_millisecond(HEART_TIMER_OUT),
+                                  RT_TIMER_FLAG_ONE_SHOT);
+  RT_ASSERT(RT_NULL != heart_timer_t);
+  _rt = rt_timer_start(heart_timer_t);
+  RT_ASSERT(_rt == RT_EOK);
+}
+
+static void _delete_heart_timer(void) {
+  rt_err_t _rt = RT_EOK;
+  _rt = rt_timer_delete(heart_timer_t);
+  RT_ASSERT(RT_EOK == _rt);
+}
+
+static void _reset_heart_timer(void) {
+  _delete_heart_timer();
+  _creat_heart_timer();
+}
+
 // TODO：与服务器的心跳维护,网络灯
 // TODO：网卡切换与网卡状态更新
 void net_heart_and_netdev_select(void *parameter) {
-  struct rt_event *_event_t = &net_dtu_event;
   rt_err_t _err = RT_EOK;
   rt_uint32_t _recv = RT_EOK;
 
   net_dtu_item_t = _new_net_dtu();
   _net_dtu_reset(net_dtu_item_t);
-  // FIXME:
-  // _net_dtu_netdev_select(net_dtu_item_t);
-
+  _net_dtu_netdev_select(net_dtu_item_t);
+  _creat_heart_timer();
+  
   while (1) {
-    _err = rt_event_recv(_event_t, EVENT_NETDEV_ALL,
+    _err = rt_event_recv(net_dtu_event, EVENT_NETDEV_ALL,
                          RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
                          rt_tick_from_millisecond(5000), &_recv);
     if (!((_err == RT_EOK) || (_err == (-RT_ETIMEOUT)))) {
       LOG_E("%s line:%d code:%d", __FILE__, __LINE__, _err);
       continue;
     }
-    if (_recv & EVENT_NETDEV_CHANGE_WIRED) {
-    }
-    if (_recv & EVENT_NETDEV_CHANGE_WIRELESS) {
+    if (_recv & EVENT_NETDEV_CHECK) {
+      _delete_heart_timer();
+      _net_dtu_netdev_select(net_dtu_item_t);
+      _creat_heart_timer();
     }
     if (_recv & EVENT_NETDEV_HEART) {
+      _reset_heart_timer();
     }
   }
 }
@@ -375,8 +407,9 @@ int net_dtu_init(void) {
   rt_err_t _err = RT_EOK;
   static rt_thread_t _tid = RT_NULL;
 
-  _err = rt_event_init(&net_dtu_event, "net_dtu_event", RT_IPC_FLAG_FIFO);
-  RT_ASSERT(RT_EOK == _err);
+  /*创建一个异常监控事件*/
+  net_dtu_event = rt_event_create("net_dtu_event", RT_IPC_FLAG_FIFO);
+  RT_ASSERT(RT_NULL != net_dtu_event);
 
   _tid = rt_thread_create("dtu_stat", net_heart_and_netdev_select, RT_NULL,
                           1024, RT_THREAD_PRIORITY_MAX / 2, 20);
