@@ -4,7 +4,7 @@
 #include "net_messges_parser.h"
 
 #define LOG_TAG "net_dtu"
-#define LOG_LVL LOG_LVL_DBGCHECK
+#define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
 #define EVENT_NETDEV_CHECK (1 << 0)  //检查网卡
@@ -137,7 +137,7 @@ static rt_err_t _net_dtu_link_remote_server(net_dtu_t net_dtu) {
   }
 
   /*等待网卡准备OK*/
-  while (netdev_is_link_up(net_dtu->netdev)) {
+  while (!netdev_is_link_up(net_dtu->netdev)) {
     rt_thread_mdelay(100);
   }
 
@@ -177,6 +177,7 @@ static rt_err_t _net_dtu_link_remote_server(net_dtu_t net_dtu) {
   return RT_EOK;
 
 _exit:
+  closesocket(net_dtu->sock);
   return -RT_ERROR;
 }
 
@@ -268,44 +269,39 @@ void netdev_status_change(struct netdev *netdev, enum netdev_cb_type type) {
   rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
 }
 
+// netdev->flags |= NETDEV_FLAG_INTERNET_UP;
+// netdev->flags &= ~NETDEV_FLAG_INTERNET_UP;
 // TODO:优先选择有线连接,其次选择无线网络
 // 本函数在网卡状态发生变化时回调
 // TODO：必须保证百分之百的网卡选择成功
-static rt_err_t _net_dtu_netdev_select(net_dtu_t net_dtu) {
+static void _net_dtu_netdev_select(net_dtu_t net_dtu) {
   rt_err_t _rt = RT_EOK;
   struct netdev *_netdev_t = RT_NULL;
   struct netdev *_wireless_netdev_t;
   // struct netdev *_wired_netdev_t;
 
-  //设置网卡回调
-
-  //获取有限与无线网卡,并判断是否能连接到网络。
-  // TODO: 将网络状态写为OK
+_new_select:
+  //设置网卡internet状态和回调
   _wireless_netdev_t = netdev_get_by_name(EG25G_DEVICE_NAME);
+  RT_ASSERT(_wireless_netdev_t != RT_NULL);
+  netdev_set_internet_status(_wireless_netdev_t, RT_FALSE);
+  netdev_set_status_callback(_wireless_netdev_t, netdev_status_change);
 
-  //判断是否需要切换网卡
-  if (net_dtu->netdev != _netdev_t) {
-    if (net_dtu->netdev != RT_NULL) {
-      _rt = _net_dtu_close(net_dtu);
-      if (_rt != RT_EOK) {
-        // TODO:LOG_W();
-      }
-    }
+  //判断是否能连接到网络，选择有线或无线网卡，并且
+  _netdev_t = _wireless_netdev_t;
 
-    _net_dtu_set_netdev(net_dtu, _netdev_t);
-    _rt = _net_dtu_link_remote_server(net_dtu);
-    if (RT_EOK != _rt) {
-      LOG_W("%s(netdev) link remote server fail _rt = %d",
-            net_dtu->netdev->name, _rt);
-      _net_dtu_reset(net_dtu);
-      goto _exit;
-    }
+  // TODO判断是否需要切换网卡
+  _net_dtu_set_netdev(net_dtu, _netdev_t);
+
+  _rt = _net_dtu_link_remote_server(net_dtu);
+  if (RT_EOK != _rt) {
+    LOG_W("%s(netdev) link remote server fail _rt = %d", net_dtu->netdev->name,
+          _rt);
+    _net_dtu_reset(net_dtu);
+    goto _new_select;
   }
 
-  return RT_EOK;
-
-_exit:
-  return _rt;
+  netdev_set_internet_status(_netdev_t, RT_TRUE);
 }
 
 // TODO 监听网络数据
@@ -317,7 +313,7 @@ void net_dtu_wait_recv(void *parameter) {
   if (!SOCKET_LINK_IS_OK(net_dtu_item_t)) {
     //  return -NET_DTU_ERR_NO_LINK;
   }
-
+  LOG_D("start recv retome");
   while (1) {
     //等待一个事件
 
@@ -382,19 +378,36 @@ void net_heart_and_netdev_select(void *parameter) {
   net_dtu_item_t = _new_net_dtu();
   _net_dtu_reset(net_dtu_item_t);
   _net_dtu_netdev_select(net_dtu_item_t);
+
+  _creat_dtu_recv_t();
   _creat_heart_timer();
-  
+  _err = _send_heart_to_remote(net_dtu_item_t->sock);
+  if (RT_EOK != _err) {
+    rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
+  }
+
   while (1) {
     _err = rt_event_recv(net_dtu_event, EVENT_NETDEV_ALL,
                          RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-                         rt_tick_from_millisecond(5000), &_recv);
+                         rt_tick_from_millisecond(HEART_SEND_PERIODIC), &_recv);
     if (!((_err == RT_EOK) || (_err == (-RT_ETIMEOUT)))) {
       LOG_E("%s line:%d code:%d", __FILE__, __LINE__, _err);
       continue;
     }
+    if (_err == (-RT_ETIMEOUT)) {
+      _err = _send_heart_to_remote(net_dtu_item_t->sock);
+      if (RT_EOK != _err) {
+        rt_event_send(net_dtu_event, EVENT_NETDEV_CHECK);
+      }
+    }
     if (_recv & EVENT_NETDEV_CHECK) {
       _delete_heart_timer();
+      _delete_dtu_recv_t();
+
       _net_dtu_netdev_select(net_dtu_item_t);
+      LOG_D("dtu_netdev select %s", net_dtu_item_t->netdev->name);
+
+      _creat_dtu_recv_t();
       _creat_heart_timer();
     }
     if (_recv & EVENT_NETDEV_HEART) {
@@ -404,7 +417,6 @@ void net_heart_and_netdev_select(void *parameter) {
 }
 
 int net_dtu_init(void) {
-  rt_err_t _err = RT_EOK;
   static rt_thread_t _tid = RT_NULL;
 
   /*创建一个异常监控事件*/

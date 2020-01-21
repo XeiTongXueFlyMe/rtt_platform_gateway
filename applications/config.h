@@ -14,6 +14,7 @@
 
 #define SERVER_ADDER_URL "iot.elitesemicon.com.cn"
 #define SERVER_ADDER_PORT 8287
+#define HEART_SEND_PERIODIC 10000 // ms
 #define HEART_TIMER_OUT 30000 // ms
 
 /*============= device drivers =============*/
